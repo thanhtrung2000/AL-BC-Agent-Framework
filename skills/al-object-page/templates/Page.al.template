@@ -1,0 +1,69 @@
+page <ID> "<AFFIX> <Name> List"
+{
+    Caption = '<Caption>';
+    PageType = List;
+    UsageCategory = Lists;              // omit and the page is NOT searchable
+    ApplicationArea = All;
+    SourceTable = "<AFFIX> <Name>";
+    CardPageId = "<AFFIX> <Name> Card";
+    Editable = false;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(General)
+            {
+                field("<AFFIX> Code"; Rec."<AFFIX> Code")
+                {
+                    ApplicationArea = All;   // required on EVERY field or it will not render
+                    ToolTip = 'Specifies the code that identifies the record.';
+                }
+                field("<AFFIX> Description"; Rec."<AFFIX> Description")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the description of the record.';
+                }
+                field("<AFFIX> Amount"; Rec."<AFFIX> Amount")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the amount.';
+                }
+            }
+        }
+        area(FactBoxes)
+        {
+            systempart(Notes; Notes) { ApplicationArea = All; }
+        }
+    }
+
+    actions
+    {
+        area(Processing)
+        {
+            action("<AFFIX> Process")
+            {
+                ApplicationArea = All;      // required on EVERY action
+                Caption = 'Process';
+                ToolTip = 'Runs the process for the selected records.';
+                Image = Process;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+
+                trigger OnAction()
+                var
+                    Mgt: Codeunit "<AFFIX> <Name> Mgt.";
+                begin
+                    // Delegate to a codeunit - never put business logic here.
+                    Mgt.Process(Rec);
+                end;
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        Rec.SetLoadFields("<AFFIX> Code", "<AFFIX> Description", "<AFFIX> Amount");
+    end;
+}

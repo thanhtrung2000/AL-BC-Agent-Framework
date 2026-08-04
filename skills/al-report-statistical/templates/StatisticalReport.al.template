@@ -1,0 +1,142 @@
+// Statistical report: aggregate ONCE into a temp buffer, feed the layout a
+// flat pre-summed dataset. Example: posted purchase invoices by vendor/quarter.
+
+report <ID> "<AFFIX> <Name> Statistics"
+{
+    Caption = '<Caption>';
+    UsageCategory = ReportsAndAnalysis;
+    ApplicationArea = All;
+    DefaultRenderingLayout = "<AFFIX><Name>Layout";
+    DataAccessIntent = ReadOnly;
+
+    dataset
+    {
+        // Drive from the buffer, NOT the source table.
+        dataitem(AggregatedData; "<AFFIX> Statistics Buffer")
+        {
+            UseTemporary = true;
+
+            column(VendorNo; "Vendor No.") { }
+            column(VendorName; "Vendor Name") { }
+            column(PeriodLabel; "Period Label") { }
+            column(PeriodStart; "Period Start") { }
+            column(TotalAmount; "Total Amount") { }
+            column(InvoiceCount; "Invoice Count") { }
+
+            trigger OnPreDataItem()
+            begin
+                SetCurrentKey("Vendor No.", "Period Start");
+            end;
+        }
+    }
+
+    requestpage
+    {
+        SaveValues = true;
+
+        layout
+        {
+            area(Content)
+            {
+                group(Options)
+                {
+                    Caption = 'Options';
+
+                    field(DateFilterCtrl; DateFilterText)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Date Filter';
+                        ToolTip = 'Specifies the posting date range to include.';
+                    }
+                    field(VendorFilterCtrl; VendorFilterText)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Vendor Filter';
+                        ToolTip = 'Specifies which vendors to include. Leave blank for all.';
+                    }
+                    field(UseFiscalYearCtrl; UseFiscalYear)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Use Fiscal Year';
+                        ToolTip = 'Specifies whether periods follow accounting periods rather than calendar quarters.';
+                    }
+                }
+            }
+        }
+    }
+
+    rendering
+    {
+        layout("<AFFIX><Name>Layout")
+        {
+            Type = RDLC;
+            LayoutFile = './src/Report/<AFFIX><Name>.rdlc';
+            Caption = '<Caption> (RDLC)';
+        }
+    }
+
+    var
+        DateFilterText: Text;
+        VendorFilterText: Text;
+        UseFiscalYear: Boolean;
+
+    trigger OnPreReport()
+    begin
+        BuildBuffer();
+    end;
+
+    local procedure BuildBuffer()
+    var
+        PurchInvHeader: Record "Purch. Inv. Header";
+        Vendor: Record Vendor;
+        PeriodStart: Date;
+        PeriodLabel: Text[30];
+    begin
+        AggregatedData.Reset();
+        AggregatedData.DeleteAll();
+
+        // Filter in AL - never let the layout discard rows.
+        PurchInvHeader.SetLoadFields("Buy-from Vendor No.", "Posting Date", "Amount Including VAT");
+        if DateFilterText <> '' then
+            PurchInvHeader.SetFilter("Posting Date", DateFilterText);
+        if VendorFilterText <> '' then
+            PurchInvHeader.SetFilter("Buy-from Vendor No.", VendorFilterText);
+
+        // ONE pass over the source. No nested re-scanning per group.
+        if PurchInvHeader.FindSet() then
+            repeat
+                ResolvePeriod(PurchInvHeader."Posting Date", PeriodStart, PeriodLabel);
+
+                if not AggregatedData.Get(PurchInvHeader."Buy-from Vendor No.", PeriodStart) then begin
+                    AggregatedData.Init();
+                    AggregatedData."Vendor No." := PurchInvHeader."Buy-from Vendor No.";
+                    AggregatedData."Period Start" := PeriodStart;
+                    AggregatedData."Period Label" := PeriodLabel;
+                    if Vendor.Get(PurchInvHeader."Buy-from Vendor No.") then
+                        AggregatedData."Vendor Name" := Vendor.Name;
+                    AggregatedData.Insert();
+                end;
+
+                AggregatedData."Total Amount" += PurchInvHeader."Amount Including VAT";
+                AggregatedData."Invoice Count" += 1;
+                AggregatedData.Modify();
+            until PurchInvHeader.Next() = 0;
+    end;
+
+    local procedure ResolvePeriod(PostingDate: Date; var PeriodStart: Date; var PeriodLabel: Text[30])
+    var
+        AccountingPeriod: Record "Accounting Period";
+    begin
+        if UseFiscalYear then begin
+            // Accounting period, NOT calendar arithmetic. A company with a
+            // July fiscal year start gets wrong "Q1" labels otherwise.
+            AccountingPeriod.SetRange("New Fiscal Year", true);
+            AccountingPeriod.SetFilter("Starting Date", '<=%1', PostingDate);
+            if AccountingPeriod.FindLast() then
+                PeriodStart := AccountingPeriod."Starting Date";
+        end else
+            PeriodStart := CalcDate('<-CQ>', PostingDate);
+
+        PeriodLabel := Format(PeriodStart, 0, '<Year4>-Q<Quarter>');
+    end;
+}

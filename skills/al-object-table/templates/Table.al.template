@@ -1,0 +1,70 @@
+table <ID> "<AFFIX> <Name>"
+{
+    Caption = '<Caption>';
+    DataClassification = <CustomerContent|EndUserIdentifiableInformation|AccountData|OrganizationIdentifiableInformation|SystemMetadata>;
+    LookupPageId = "<AFFIX> <Name> List";
+    DrillDownPageId = "<AFFIX> <Name> List";
+
+    fields
+    {
+        field(1; "<AFFIX> Code"; Code[20])
+        {
+            Caption = 'Code';
+            DataClassification = CustomerContent;
+            NotBlank = true;
+        }
+        field(2; "<AFFIX> Description"; Text[100])
+        {
+            Caption = 'Description';
+            DataClassification = CustomerContent;
+        }
+        field(10; "<AFFIX> Vendor No."; Code[20])
+        {
+            Caption = 'Vendor No.';
+            DataClassification = CustomerContent;
+            TableRelation = Vendor."No.";
+        }
+        field(20; "<AFFIX> Amount"; Decimal)
+        {
+            Caption = 'Amount';
+            DataClassification = CustomerContent;
+            AutoFormatType = 1;
+        }
+        // Prefer a FlowField over a stored duplicate where the value is derivable.
+        field(30; "<AFFIX> Entry Count"; Integer)
+        {
+            Caption = 'Entry Count';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = count("<Related Table>" where("<FK Field>" = field("<AFFIX> Code")));
+        }
+    }
+
+    keys
+    {
+        key(PK; "<AFFIX> Code") { Clustered = true; }
+
+        // Add a key ONLY for a real filter pattern. Every key costs writes.
+        key(ByVendor; "<AFFIX> Vendor No.", "<AFFIX> Code")
+        {
+            SumIndexFields = "<AFFIX> Amount";
+        }
+    }
+
+    fieldgroups
+    {
+        // Without DropDown, lookups show only the primary key.
+        fieldgroup(DropDown; "<AFFIX> Code", "<AFFIX> Description") { }
+        fieldgroup(Brick; "<AFFIX> Code", "<AFFIX> Description", "<AFFIX> Amount") { }
+    }
+
+    trigger OnInsert()
+    begin
+        // initialisation / number series
+    end;
+
+    trigger OnDelete()
+    begin
+        // cascade / guard against orphans
+    end;
+}

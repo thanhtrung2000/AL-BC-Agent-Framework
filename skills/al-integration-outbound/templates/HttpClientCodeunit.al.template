@@ -1,0 +1,140 @@
+// Outbound HTTP pattern.
+// Rules baked in: timeout always set, no HTTP inside a transaction or a record
+// loop, explicit status handling, backoff on 429/5xx only, culture-invariant
+// parsing, telemetry without payload contents.
+//
+// Credentials are NOT handled here - see the al-integration-auth skill.
+
+codeunit <ID> "<AFFIX> <Service> Client"
+{
+    Access = Internal;
+
+    var
+        AuthMgt: Codeunit "<AFFIX> <Service> Auth";
+        BaseUrlTok: Label 'https://<host>/api/v1', Locked = true;
+        TelemetryEventIdTok: Label '<AFFIX>-INT-0001', Locked = true;
+        CallFailedErr: Label 'The call to %1 failed with status %2. %3', Comment = '%1 = endpoint, %2 = status code, %3 = service message';
+
+        DefaultTimeoutMs: Integer;
+        MaxRetries: Integer;
+
+    procedure Initialize()
+    begin
+        DefaultTimeoutMs := 30000;   // NEVER leave unbounded
+        MaxRetries := 3;
+    end;
+
+    /// <summary>
+    /// Sends a payload. Call OUTSIDE any transaction and OUTSIDE any record
+    /// loop - collect first, then call, then write.
+    /// </summary>
+    [TryFunction]
+    procedure Send(Endpoint: Text; Payload: JsonObject; var ResponseObject: JsonObject)
+    var
+        Client: HttpClient;
+        Request: HttpRequestMessage;
+        Response: HttpResponseMessage;
+        Content: HttpContent;
+        Headers: HttpHeaders;
+        PayloadText: Text;
+        ResponseText: Text;
+        Attempt: Integer;
+        StartedAt: DateTime;
+    begin
+        if DefaultTimeoutMs = 0 then
+            Initialize();
+
+        Payload.WriteTo(PayloadText);
+
+        Content.WriteFrom(PayloadText);
+        Content.GetHeaders(Headers);
+        Headers.Clear();
+        Headers.Add('Content-Type', 'application/json');
+
+        Request.Content := Content;
+        Request.Method := 'POST';
+        Request.SetRequestUri(BaseUrlTok + Endpoint);
+        Request.GetHeaders(Headers);
+        Headers.Add('Authorization', 'Bearer ' + AuthMgt.GetAccessToken());
+
+        Client.Timeout := DefaultTimeoutMs;
+        StartedAt := CurrentDateTime();
+
+        for Attempt := 1 to MaxRetries do begin
+            if Client.Send(Request, Response) then begin
+                Response.Content().ReadAs(ResponseText);
+
+                if Response.IsSuccessStatusCode() then begin
+                    LogCall(Endpoint, Response.HttpStatusCode(), StartedAt, true);
+                    ResponseObject.ReadFrom(ResponseText);
+                    exit;
+                end;
+
+                // Retry ONLY on throttling and server errors.
+                if not IsRetryable(Response.HttpStatusCode()) then begin
+                    LogCall(Endpoint, Response.HttpStatusCode(), StartedAt, false);
+                    Error(CallFailedErr, Endpoint, Response.HttpStatusCode(), ResponseText);
+                end;
+            end;
+
+            if Attempt < MaxRetries then
+                Sleep(GetBackoffMs(Attempt));
+        end;
+
+        LogCall(Endpoint, Response.HttpStatusCode(), StartedAt, false);
+        Error(CallFailedErr, Endpoint, Response.HttpStatusCode(), ResponseText);
+    end;
+
+    local procedure IsRetryable(StatusCode: Integer): Boolean
+    begin
+        exit(StatusCode in [429, 500, 502, 503, 504]);
+    end;
+
+    local procedure GetBackoffMs(Attempt: Integer): Integer
+    begin
+        exit(Power(2, Attempt) * 500);   // 1s, 2s, 4s
+    end;
+
+    // --- Payload reading: guard EVERY field --------------------------------
+    procedure TryGetText(Source: JsonObject; PropertyName: Text; var Result: Text): Boolean
+    var
+        Token: JsonToken;
+    begin
+        Result := '';
+        if not Source.Get(PropertyName, Token) then exit(false);
+        if not Token.IsValue() then exit(false);
+        if Token.AsValue().IsNull() then exit(false);
+
+        Result := Token.AsValue().AsText();
+        exit(true);
+    end;
+
+    procedure TryGetDecimal(Source: JsonObject; PropertyName: Text; var Result: Decimal): Boolean
+    var
+        ValueText: Text;
+    begin
+        Result := 0;
+        if not TryGetText(Source, PropertyName, ValueText) then
+            exit(false);
+
+        // Culture-invariant. A naive Evaluate returns 0 for "1.234,50" in a
+        // European session - silent wrong amounts, no error.
+        exit(Evaluate(Result, ValueText, 9));
+    end;
+
+    // --- Telemetry: never log payloads or credentials ----------------------
+    local procedure LogCall(Endpoint: Text; StatusCode: Integer; StartedAt: DateTime; Success: Boolean)
+    var
+        Dimensions: Dictionary of [Text, Text];
+    begin
+        Dimensions.Add('endpoint', Endpoint);
+        Dimensions.Add('statusCode', Format(StatusCode));
+        Dimensions.Add('durationMs', Format(CurrentDateTime() - StartedAt));
+        Dimensions.Add('success', Format(Success));
+
+        Session.LogMessage(
+            TelemetryEventIdTok, 'Outbound integration call',
+            Verbosity::Normal, DataClassification::SystemMetadata,
+            TelemetryScope::ExtensionPublisher, Dimensions);
+    end;
+}

@@ -1,0 +1,89 @@
+// ---------------------------------------------------------------------------
+// QUERY - pushes join + aggregation to SQL.
+// WARNING: every non-aggregated column becomes part of the implicit GROUP BY.
+//          Adding one silently changes the numbers.
+// ---------------------------------------------------------------------------
+query <ID> "<AFFIX> Vendor Spend"
+{
+    QueryType = Normal;              // QueryType = API belongs to integration
+    DataAccessIntent = ReadOnly;
+    Caption = 'Vendor Spend';
+
+    elements
+    {
+        dataitem(PurchInvHeader; "Purch. Inv. Header")
+        {
+            DataItemTableFilter = "Posting Date" = filter(<>0D);
+
+            column(VendorNo; "Buy-from Vendor No.") { }
+
+            column(TotalAmount; "Amount Including VAT")
+            {
+                Method = Sum;
+            }
+            column(InvoiceCount; "No.")
+            {
+                Method = Count;
+            }
+
+            dataitem(Vendor; Vendor)
+            {
+                DataItemLink = "No." = PurchInvHeader."Buy-from Vendor No.";
+                SqlJoinType = InnerJoin;      // LeftOuterJoin keeps unmatched rows
+
+                column(VendorName; Name) { }
+            }
+        }
+    }
+}
+
+
+// ---------------------------------------------------------------------------
+// XMLPORT - structured file import/export.
+// Culture matters: a partner file does NOT follow the user's regional settings.
+// ---------------------------------------------------------------------------
+xmlport <ID+1> "<AFFIX> Vendor Import"
+{
+    Caption = 'Vendor Import';
+    Format = VariableText;           // CSV. Use Xml for XML, FixedText for fixed-width
+    FieldDelimiter = '"';
+    FieldSeparator = ';';            // set explicitly - defaults differ from most partners
+    Direction = Import;
+    TextEncoding = UTF8;
+
+    schema
+    {
+        textelement(Root)
+        {
+            tableelement(VendorBuffer; "<AFFIX> Vendor Buffer")
+            {
+                AutoSave = false;
+                XmlName = 'Vendor';
+
+                fieldelement(VendorNo; VendorBuffer."<AFFIX> Vendor No.") { }
+                fieldelement(VendorName; VendorBuffer."<AFFIX> Vendor Name") { }
+                textelement(AmountText)
+                {
+                    trigger OnAfterAssignVariable()
+                    begin
+                        // Culture-invariant parse. A naive Evaluate returns 0
+                        // for "1.234,50" in a European session.
+                        if not Evaluate(VendorBuffer."<AFFIX> Amount", AmountText, 9) then
+                            Error(InvalidAmountErr, AmountText, VendorBuffer."<AFFIX> Vendor No.");
+                    end;
+                }
+
+                trigger OnBeforeInsertRecord()
+                begin
+                    // Never trust the file. Validate before insert.
+                    if VendorBuffer."<AFFIX> Vendor No." = '' then
+                        Error(MissingVendorNoErr);
+                end;
+            }
+        }
+    }
+
+    var
+        InvalidAmountErr: Label 'Cannot parse amount "%1" for vendor %2.', Comment = '%1 = raw text, %2 = vendor no';
+        MissingVendorNoErr: Label 'A row is missing the vendor number.';
+}

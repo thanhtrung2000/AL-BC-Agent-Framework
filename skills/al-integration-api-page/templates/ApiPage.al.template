@@ -1,0 +1,71 @@
+// Inbound API page. The publisher/group/version/entity names form a
+// PERMANENT public contract. Changing them breaks every consumer.
+//
+// Resulting URL:
+//   /api/<publisher>/<group>/<version>/companies(<id>)/<entitySetName>
+
+page <ID> "<AFFIX> <Entity> API"
+{
+    PageType = API;
+    APIPublisher = '<publisher>';       // lowercase, your org
+    APIGroup = '<group>';               // lowercase, functional area
+    APIVersion = 'v1.0';                // bump for BREAKING changes only
+    EntityName = '<entityName>';        // singular, camelCase
+    EntitySetName = '<entitySetName>';  // plural, camelCase
+    Caption = '<Caption>', Locked = true;
+
+    SourceTable = "<AFFIX> <Entity>";
+    ODataKeyFields = SystemId;
+    DelayedInsert = true;               // required when mandatory fields exist
+    Editable = true;
+    DeleteAllowed = false;              // enable only if the contract requires it
+    Extensible = false;
+
+    // Do NOT set UsageCategory on an API page - it is not a UI page.
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Group)
+            {
+                field(id; Rec.SystemId)
+                {
+                    Caption = 'Id', Locked = true;
+                    Editable = false;
+                }
+                field(code; Rec."<AFFIX> Code")
+                {
+                    Caption = 'Code', Locked = true;
+                }
+                field(description; Rec."<AFFIX> Description")
+                {
+                    Caption = 'Description', Locked = true;
+                }
+                field(amount; Rec."<AFFIX> Amount")
+                {
+                    Caption = 'Amount', Locked = true;
+                }
+                // Consumers use this for delta sync - always expose it.
+                field(lastModifiedDateTime; Rec.SystemModifiedAt)
+                {
+                    Caption = 'LastModifiedDateTime', Locked = true;
+                    Editable = false;
+                }
+                // Expose ONLY what the contract requires. Every extra field is
+                // one you support forever and a data-exposure finding.
+            }
+        }
+    }
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        // Never trust the caller. Reject incomplete payloads here.
+        exit(true);
+    end;
+
+    trigger OnModifyRecord(): Boolean
+    begin
+        exit(true);
+    end;
+}

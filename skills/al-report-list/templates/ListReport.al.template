@@ -1,0 +1,85 @@
+// List / register report: flat rows, user filters, dataset-level totals.
+// NOT for aggregation - use the statistical skill for grouped totals.
+
+report <ID> "<AFFIX> <Name> List"
+{
+    Caption = '<Caption>';
+    UsageCategory = ReportsAndAnalysis;
+    ApplicationArea = All;
+    DefaultRenderingLayout = "<AFFIX><Name>Layout";
+    DataAccessIntent = ReadOnly;
+    MaximumDatasetSize = 100000;   // guard against an unfiltered run
+
+    dataset
+    {
+        dataitem(Entry; "G/L Entry")
+        {
+            // This is what gives the user the standard filter pane.
+            RequestFilterFields = "G/L Account No.", "Posting Date", "Document No.";
+
+            column(EntryNo; "Entry No.") { }
+            column(PostingDate; "Posting Date") { }
+            column(AccountNo; "G/L Account No.") { }
+            column(DocumentNo; "Document No.") { }
+            column(Description; Description) { }
+            column(Amount; Amount) { }
+
+            trigger OnPreDataItem()
+            begin
+                // Key MUST match the filter pattern or SQL scans.
+                SetCurrentKey("G/L Account No.", "Posting Date");
+
+                SetLoadFields("Entry No.", "Posting Date", "G/L Account No.",
+                              "Document No.", Description, Amount);
+
+                if ShowOnlyOpen then
+                    SetRange(Open, true);
+            end;
+
+            trigger OnAfterGetRecord()
+            begin
+                // Totals computed in the DATASET, never in the layout.
+                TotalAmount += Amount;
+                RowCount += 1;
+            end;
+        }
+    }
+
+    requestpage
+    {
+        SaveValues = true;
+
+        layout
+        {
+            area(Content)
+            {
+                group(Options)
+                {
+                    Caption = 'Options';
+
+                    field(ShowOnlyOpenCtrl; ShowOnlyOpen)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Show Only Open Entries';
+                        ToolTip = 'Specifies whether to include only open entries.';
+                    }
+                }
+            }
+        }
+    }
+
+    rendering
+    {
+        layout("<AFFIX><Name>Layout")
+        {
+            Type = RDLC;
+            LayoutFile = './src/Report/<AFFIX><Name>.rdlc';
+            Caption = '<Caption> (RDLC)';
+        }
+    }
+
+    var
+        ShowOnlyOpen: Boolean;
+        TotalAmount: Decimal;
+        RowCount: Integer;
+}

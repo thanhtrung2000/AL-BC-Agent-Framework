@@ -1,0 +1,66 @@
+pageextension <ID> "<AFFIX> <BasePage> Ext" extends "<BasePage>"
+{
+    layout
+    {
+        // ANCHOR STABILITY - best to worst:
+        //   addlast(<long-lived group>)     <- best
+        //   addfirst(<long-lived group>)
+        //   addafter(<well-known field>)    <- risky
+        //   addafter(<recently added field>) <- fragile, avoid
+        //
+        // Long-lived groups: General, Lines, Invoicing, Shipping,
+        //                    Foreign Trade, Application, factboxes
+        addlast(General)
+        {
+            field("<AFFIX> Custom Code"; Rec."<AFFIX> Custom Code")
+            {
+                ApplicationArea = All;      // required or it will NOT render
+                Caption = 'Custom Code';
+                ToolTip = 'Specifies the custom code for this record.';
+            }
+        }
+
+        addlast(factboxes)
+        {
+            part("<AFFIX> Detail FactBox"; "<AFFIX> Detail FactBox")
+            {
+                ApplicationArea = All;
+                SubPageLink = "<FK Field>" = field("No.");
+            }
+        }
+
+        // Use modify() for property tweaks. Never redefine a base control
+        // to change one property. Never remove a base control.
+        modify("Posting Date")
+        {
+            ToolTip = 'Specifies the posting date. Custom validation applies.';
+        }
+    }
+
+    actions
+    {
+        addlast(Processing)
+        {
+            action("<AFFIX> Custom Action")
+            {
+                ApplicationArea = All;      // required on EVERY action
+                Caption = 'Run Custom Process';
+                ToolTip = 'Runs the custom process for this record.';
+                Image = Process;
+                Promoted = true;
+                PromotedCategory = Process;
+
+                trigger OnAction()
+                var
+                    CustomMgt: Codeunit "<AFFIX> Custom Mgt.";
+                begin
+                    // Delegate to a codeunit - no business logic in the action.
+                    CustomMgt.Process(Rec);
+                end;
+            }
+        }
+    }
+
+    // Page-level triggers here run for EVERY user of this base page.
+    // Keep them trivial. Expensive work belongs in an on-demand FactBox.
+}

@@ -1,0 +1,125 @@
+// Processing-only report: CHANGES DATA, prints nothing.
+// The only report type that writes - hence the extra guards.
+
+report <ID> "<AFFIX> Update <Name>"
+{
+    Caption = '<Caption>';
+    UsageCategory = Tasks;
+    ApplicationArea = All;
+    ProcessingOnly = true;
+    UseRequestPage = true;
+
+    dataset
+    {
+        dataitem(Item; Item)
+        {
+            RequestFilterFields = "No.", "Item Category Code", "Vendor No.";
+
+            trigger OnPreDataItem()
+            begin
+                SetLoadFields("No.", Description, "Unit Price");
+
+                RecordCount := Count();
+                if RecordCount = 0 then
+                    Error(NothingToProcessErr);
+
+                // Confirm BEFORE any change, stating the scale.
+                if UpdateRecords then
+                    if not Confirm(ConfirmUpdateQst, false, RecordCount) then
+                        CurrReport.Quit();
+
+                Window.Open(ProcessingMsg);
+            end;
+
+            trigger OnAfterGetRecord()
+            begin
+                Window.Update(1, "No.");
+                Examined += 1;
+
+                if not ShouldProcess(Item) then begin
+                    Skipped += 1;
+                    exit;
+                end;
+
+                // Preview mode: count without writing.
+                if not UpdateRecords then begin
+                    WouldChange += 1;
+                    exit;
+                end;
+
+                ApplyChange(Item);
+                Changed += 1;
+            end;
+
+            trigger OnPostDataItem()
+            begin
+                Window.Close();
+            end;
+        }
+    }
+
+    requestpage
+    {
+        SaveValues = true;
+
+        layout
+        {
+            area(Content)
+            {
+                group(Options)
+                {
+                    Caption = 'Options';
+
+                    field(UpdateRecordsCtrl; UpdateRecords)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Update Records';
+                        ToolTip = 'Specifies whether to apply changes. Leave blank to preview how many records would change.';
+                    }
+                    field(NewValueCtrl; NewValue)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'New Value';
+                        ToolTip = 'Specifies the value to apply.';
+                    }
+                }
+            }
+        }
+    }
+
+    var
+        Window: Dialog;
+        UpdateRecords: Boolean;   // defaults FALSE - preview first
+        NewValue: Decimal;
+        RecordCount: Integer;
+        Examined: Integer;
+        Changed: Integer;
+        Skipped: Integer;
+        WouldChange: Integer;
+
+        ProcessingMsg: Label 'Processing item #1#################', Comment = '#1 = item number';
+        ConfirmUpdateQst: Label 'This will update %1 records. Continue?', Comment = '%1 = record count';
+        NothingToProcessErr: Label 'No records match the selected filters.';
+        PreviewResultMsg: Label '%1 records examined. %2 would change. %3 skipped.', Comment = '%1 = examined, %2 = would change, %3 = skipped';
+        UpdateResultMsg: Label '%1 records examined. %2 changed. %3 skipped.', Comment = '%1 = examined, %2 = changed, %3 = skipped';
+
+    trigger OnPostReport()
+    begin
+        // Never finish silently.
+        if UpdateRecords then
+            Message(UpdateResultMsg, Examined, Changed, Skipped)
+        else
+            Message(PreviewResultMsg, Examined, WouldChange, Skipped);
+    end;
+
+    local procedure ShouldProcess(var ItemRec: Record Item): Boolean
+    begin
+        exit(true);
+    end;
+
+    local procedure ApplyChange(var ItemRec: Record Item)
+    begin
+        ItemRec.Validate("Unit Price", NewValue);
+        ItemRec.Modify(true);
+    end;
+}

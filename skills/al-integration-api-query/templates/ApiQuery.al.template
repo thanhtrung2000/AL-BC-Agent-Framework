@@ -1,0 +1,47 @@
+// Inbound API query: read-only joined/aggregated data over OData.
+// WARNING: every non-aggregated column becomes part of the implicit GROUP BY.
+//          Adding one silently changes the numbers. Verify against known values.
+
+query <ID> "<AFFIX> Vendor Spend API"
+{
+    QueryType = API;
+    APIPublisher = '<publisher>';
+    APIGroup = '<group>';
+    APIVersion = 'v1.0';
+    EntityName = 'vendorSpend';
+    EntitySetName = 'vendorSpends';
+    Caption = 'Vendor Spend', Locked = true;
+    DataAccessIntent = ReadOnly;
+
+    elements
+    {
+        dataitem(PurchInvHeader; "Purch. Inv. Header")
+        {
+            DataItemTableFilter = "Posting Date" = filter(<>0D);
+
+            // Non-aggregated -> forms the GROUP BY
+            column(vendorNo; "Buy-from Vendor No.") { }
+
+            // Aggregated
+            column(totalAmount; "Amount Including VAT")
+            {
+                Method = Sum;
+            }
+            column(invoiceCount; "No.")
+            {
+                Method = Count;
+            }
+
+            dataitem(Vendor; Vendor)
+            {
+                DataItemLink = "No." = PurchInvHeader."Buy-from Vendor No.";
+                SqlJoinType = InnerJoin;   // LeftOuterJoin keeps unmatched rows
+
+                column(vendorName; Name) { }
+            }
+        }
+    }
+}
+
+// Queries CANNOT be written to. If the consumer needs to push data back,
+// that is a separate API PAGE - say so rather than compromising the query.

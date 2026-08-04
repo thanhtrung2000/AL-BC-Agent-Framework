@@ -1,0 +1,76 @@
+// ---------------------------------------------------------------------------
+// ENUM - leave numeric gaps so extensions can slot in. Never renumber.
+// ---------------------------------------------------------------------------
+enum <ID> "<AFFIX> Statistics Period Type"
+{
+    Extensible = true;          // permanent decision - default to true
+
+    value(0; Quarter) { Caption = 'Quarter'; }
+    value(10; Year)   { Caption = 'Year'; }
+    value(20; Month)  { Caption = 'Month'; }
+}
+
+
+// ---------------------------------------------------------------------------
+// INTERFACE - contract only. No variables, no triggers, no implementation.
+// Do NOT create one with a single implementation.
+// ---------------------------------------------------------------------------
+interface "<AFFIX> IStatisticsCalculator"
+{
+    /// <summary>Calculates the statistic for one entity over a date range.</summary>
+    procedure Calculate(VendorNo: Code[20]; FromDate: Date; ToDate: Date): Decimal;
+
+    /// <summary>Returns the user-facing caption for this method.</summary>
+    procedure GetCaption(): Text;
+}
+
+
+// ---------------------------------------------------------------------------
+// DISPATCH ENUM - the enum value selects the implementation.
+// This removes case statements and lets other extensions add methods.
+// ---------------------------------------------------------------------------
+enum <ID+1> "<AFFIX> Calculation Method" implements "<AFFIX> IStatisticsCalculator"
+{
+    Extensible = true;
+
+    value(0; Standard)
+    {
+        Caption = 'Standard';
+        Implementation = "<AFFIX> IStatisticsCalculator" = "<AFFIX> Standard Calc";
+    }
+    value(10; WeightedAverage)
+    {
+        Caption = 'Weighted Average';
+        Implementation = "<AFFIX> IStatisticsCalculator" = "<AFFIX> Weighted Calc";
+    }
+}
+
+
+// ---------------------------------------------------------------------------
+// IMPLEMENTATION - one codeunit per strategy.
+// ---------------------------------------------------------------------------
+codeunit <ID+2> "<AFFIX> Standard Calc" implements "<AFFIX> IStatisticsCalculator"
+{
+    Access = Internal;
+
+    procedure Calculate(VendorNo: Code[20]; FromDate: Date; ToDate: Date): Decimal
+    begin
+        // strategy-specific logic
+    end;
+
+    procedure GetCaption(): Text
+    begin
+        exit('Standard');
+    end;
+}
+
+
+// ---------------------------------------------------------------------------
+// CALLING IT - no branching required.
+// ---------------------------------------------------------------------------
+//  var
+//      Calculator: Interface "<AFFIX> IStatisticsCalculator";
+//  begin
+//      Calculator := Setup."<AFFIX> Calculation Method";
+//      Result := Calculator.Calculate(VendorNo, FromDate, ToDate);
+//  end;

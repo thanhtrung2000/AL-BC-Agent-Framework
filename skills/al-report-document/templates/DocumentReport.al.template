@@ -1,0 +1,109 @@
+// Document report: header -> line, company branding, per-document language.
+// For anything a customer or vendor receives.
+
+report <ID> "<AFFIX> <Document Name>"
+{
+    Caption = '<Caption>';
+    UsageCategory = Documents;
+    ApplicationArea = All;
+    DefaultRenderingLayout = "<AFFIX><Name>Word";
+    DataAccessIntent = ReadOnly;
+    WordMergeDataItem = Header;
+
+    dataset
+    {
+        dataitem(Header; "Sales Invoice Header")
+        {
+            RequestFilterFields = "No.", "Sell-to Customer No.", "Posting Date";
+
+            column(DocumentNo; "No.") { }
+            column(PostingDate; "Posting Date") { }
+            column(CustomerName; "Sell-to Customer Name") { }
+
+            // Company branding - read once in OnPreReport, bind on every page.
+            column(CompanyName; CompanyInfo.Name) { }
+            column(CompanyAddress; CompanyInfo.Address) { }
+            column(CompanyVATRegNo; CompanyInfo."VAT Registration No.") { }
+            column(CompanyPicture; CompanyInfo.Picture) { }
+
+            // Addresses come from Format Address - NEVER concatenate manually.
+            column(BillToAddr1; BillToAddr[1]) { }
+            column(BillToAddr2; BillToAddr[2]) { }
+            column(ShipToAddr1; ShipToAddr[1]) { }
+            column(ShipToAddr2; ShipToAddr[2]) { }
+
+            dataitem(Line; "Sales Invoice Line")
+            {
+                DataItemLink = "Document No." = field("No.");
+                DataItemLinkReference = Header;
+                DataItemTableView = sorting("Document No.", "Line No.");
+
+                column(LineNo; "Line No.") { }
+                column(ItemNo; "No.") { }
+                column(Description; Description) { }
+                column(Quantity; Quantity) { }
+                column(UnitPrice; "Unit Price") { }
+                column(LineAmount; "Line Amount") { }
+            }
+
+            trigger OnAfterGetRecord()
+            begin
+                // Language MUST be set PER DOCUMENT, before lines render.
+                // Miss this and a Vietnamese customer gets an English invoice
+                // with US date formats. Nothing catches it at compile time.
+                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+
+                FormatAddr.SalesInvBillTo(BillToAddr, Header);
+                FormatAddr.SalesInvShipTo(ShipToAddr, ShipToAddr, Header);
+            end;
+        }
+    }
+
+    requestpage
+    {
+        SaveValues = true;
+
+        layout
+        {
+            area(Content)
+            {
+                group(Options)
+                {
+                    Caption = 'Options';
+
+                    field(NoOfCopiesCtrl; NoOfCopies)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'No. of Copies';
+                        ToolTip = 'Specifies how many copies of the document to print.';
+                    }
+                }
+            }
+        }
+    }
+
+    rendering
+    {
+        layout("<AFFIX><Name>Word")
+        {
+            Type = Word;
+            LayoutFile = './src/Report/<AFFIX><Name>.docx';
+            Caption = '<Caption> (Word)';
+        }
+    }
+
+    var
+        CompanyInfo: Record "Company Information";
+        Language: Codeunit Language;
+        FormatAddr: Codeunit "Format Address";
+        BillToAddr: array[8] of Text[100];
+        ShipToAddr: array[8] of Text[100];
+        NoOfCopies: Integer;
+
+    trigger OnPreReport()
+    begin
+        CompanyInfo.Get();
+        CompanyInfo.CalcFields(Picture);
+    end;
+}

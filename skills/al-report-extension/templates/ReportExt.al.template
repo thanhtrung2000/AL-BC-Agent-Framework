@@ -1,0 +1,70 @@
+// Report extension: add columns / layouts to a BASE report.
+// NEVER duplicate a base report - it diverges from Microsoft updates forever.
+
+reportextension <ID> "<AFFIX> <BaseReport> Ext" extends "<BaseReport>"
+{
+    dataset
+    {
+        // Anchor to a TOP-LEVEL DataItem where possible. Nested loop items
+        // are renamed by Microsoft more often.
+        add(Header)
+        {
+            column(<AFFIX>SpendThreshold; "<AFFIX> Spend Alert Threshold")
+            {
+                // Affix required - AppSourceCop enforces it and it prevents
+                // collisions with other ISVs extending the same report.
+            }
+            column(<AFFIX>CustomCode; "<AFFIX> Custom Code") { }
+        }
+
+        add(Line)
+        {
+            column(<AFFIX>LineNote; "<AFFIX> Line Note") { }
+        }
+
+        // You CANNOT:
+        //   - change an existing column's source expression
+        //   - remove a base column
+        //   - alter the DataItem tree
+        // If the dataset SHAPE must change, a new report is required.
+        // Say so in NOTES rather than duplicating the base report.
+    }
+
+    requestpage
+    {
+        layout
+        {
+            addlast(Content)
+            {
+                group("<AFFIX> Options")
+                {
+                    Caption = '<Publisher> Options';
+
+                    field("<AFFIX> ShowThreshold"; ShowThreshold)
+                    {
+                        ApplicationArea = All;
+                        Caption = 'Show Spend Threshold';
+                        ToolTip = 'Specifies whether the vendor spend threshold is printed.';
+                    }
+                }
+            }
+        }
+    }
+
+    rendering
+    {
+        // Appears ALONGSIDE the base layout - it does not replace it.
+        // Making it the company default is a Report Layout Selection setup
+        // step, not an AL property.
+        layout("<AFFIX><BaseReport>Layout")
+        {
+            Type = RDLC;
+            LayoutFile = './src/Report/<AFFIX><BaseReport>.rdlc';
+            Caption = '<Base Report Name> (<Publisher>)';
+            Summary = 'Adds the vendor spend threshold column.';
+        }
+    }
+
+    var
+        ShowThreshold: Boolean;
+}

@@ -1,0 +1,9 @@
+{
+  "name": "al-bc-framework",
+  "description": "Plan to Implement automation for Microsoft Dynamics 365 Business Central AL development. A read-only planner drafts a work-packet plan, then an orchestrator routes each packet to a domain expert. Each expert classifies the work first, then loads one focused skill.",
+  "version": "2.0.0",
+  "author": { "name": "Trung Pham" },
+  "skills": "skills/",
+  "agents": "agents/",
+  "commands": "commands/"
+}

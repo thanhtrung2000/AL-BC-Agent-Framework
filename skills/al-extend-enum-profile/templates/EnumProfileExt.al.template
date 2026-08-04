@@ -1,0 +1,60 @@
+// ---------------------------------------------------------------------------
+// ENUM EXTENSION
+// Prerequisite: the base enum must be Extensible = true. No workaround exists.
+// ---------------------------------------------------------------------------
+enumextension <ID> "<AFFIX> <BaseEnum> Ext" extends "<BaseEnum>"
+{
+    // Value IDs come from THIS extension's idRanges, never the base enum's.
+    value(<ID>; "<AFFIX> CryptoTransfer")
+    {
+        Caption = 'Crypto Transfer';
+
+        // If the base enum implements an interface, this is REQUIRED -
+        // the compiler enforces it.
+        Implementation = "<Base Interface>" = "<AFFIX> Crypto Handler";
+    }
+
+    value(<ID+1>; "<AFFIX> DirectDebit")
+    {
+        Caption = 'Direct Debit';
+        Implementation = "<Base Interface>" = "<AFFIX> DirectDebit Handler";
+    }
+
+    // NEVER renumber or remove a base value - stored data references the number.
+    // NEVER reuse a base value's ID.
+}
+
+
+// ---------------------------------------------------------------------------
+// PROFILE EXTENSION - customises a base role centre.
+// Reference the base profile by its ID STRING, not its caption.
+// ---------------------------------------------------------------------------
+profileextension "<AFFIX> Business Manager Ext" extends "BUSINESS MANAGER"
+{
+    Caption = 'Business Manager (<Publisher>)';
+}
+
+
+// ---------------------------------------------------------------------------
+// PAGE CUSTOMIZATION - a SEPARATE object type, usually needed alongside
+// the profile extension. Without it the profile change does nothing visible.
+// Keep changes minimal - users personalise role centres themselves.
+// ---------------------------------------------------------------------------
+pagecustomization "<AFFIX> BM Role Center" customizes "Business Manager Role Center"
+{
+    layout
+    {
+        modify(Control1)
+        {
+            Visible = false;
+        }
+    }
+
+    actions
+    {
+        modify("Sales Orders")
+        {
+            Visible = true;
+        }
+    }
+}

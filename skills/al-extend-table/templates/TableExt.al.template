@@ -1,0 +1,45 @@
+tableextension <ID> "<AFFIX> <BaseTable> Ext" extends "<BaseTable>"
+{
+    fields
+    {
+        // Field IDs come from THIS extension's idRanges, never the base table's.
+        field(<ID>; "<AFFIX> Custom Code"; Code[20])
+        {
+            Caption = 'Custom Code';
+            DataClassification = CustomerContent;
+            TableRelation = "<AFFIX> Setup"."<AFFIX> Code";
+
+            trigger OnValidate()
+            begin
+                // Validating YOUR OWN field here is acceptable.
+                // Cross-object behaviour belongs in a subscriber codeunit -
+                // this trigger runs for EVERY consumer of the base table.
+            end;
+        }
+        field(<ID+1>; "<AFFIX> Spend Alert Threshold"; Decimal)
+        {
+            Caption = 'Spend Alert Threshold';
+            DataClassification = CustomerContent;
+            AutoFormatType = 1;
+        }
+        // Prefer a FlowField over stored data where the value is derivable.
+        field(<ID+2>; "<AFFIX> Related Count"; Integer)
+        {
+            Caption = 'Related Count';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = count("<AFFIX> Detail" where("<FK Field>" = field("No.")));
+        }
+    }
+
+    keys
+    {
+        // Only if a real filter pattern needs it. Every key costs write
+        // throughput on a table that may see thousands of inserts per posting run.
+        key("<AFFIX> ByCustomCode"; "<AFFIX> Custom Code") { }
+    }
+
+    // Do NOT modify properties of base fields.
+    // Do NOT remove or obsolete a base field.
+    // Do NOT add heavy logic to OnInsert / OnModify / OnDelete.
+}
