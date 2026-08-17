@@ -1,6 +1,6 @@
 ---
 name: al-report-list
-description: Build list, register, and ledger reports - flat listings with filters. Not for aggregation.
+description: Build list, register, ledger reports - flat listings with filters. Not for aggregation.
 ---
 
 # List / Register Report

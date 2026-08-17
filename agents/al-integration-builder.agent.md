@@ -18,8 +18,7 @@ model: ['Claude Opus 4.5', 'GPT-5.2']
 | Tokens, secrets, OAuth, setup | Auth | [al-integration-auth](../skills/al-integration-auth/SKILL.md) |
 
 ## Step 2 - Shared discipline (workspace)
-copilot-instructions + al-codeunits + al-integration. Secrets in Isolated Storage (else BLOCKER)
-· never HTTP in a transaction/loop · always a timeout · guard every JSON field · Evaluate(..,9) · telemetry without payloads.
+copilot-instructions + al-setup + al-codeunits + al-integration. Secrets in Isolated Storage (else BLOCKER) · never HTTP in a transaction/loop · always a timeout · guard every JSON field · Evaluate(..,9) · telemetry without payloads.
 
 ## You own
 API pages/queries · integration/HTTP/OAuth codeunits · retry/backoff.

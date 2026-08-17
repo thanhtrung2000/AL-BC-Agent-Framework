@@ -1,14 +1,6 @@
 report <ID> "<AFFIX> <Document Name>"
 {
-    Caption = '<Caption>'; UsageCategory = Documents; ApplicationArea = All;
-    DefaultLayout = Word; WordLayout = './src/Report/<AFFIX><Name>.docx'; DataAccessIntent = ReadOnly; WordMergeDataItem = Header;
-    dataset { dataitem(Header; "Sales Invoice Header")
-    {
-        RequestFilterFields = "No.", "Posting Date";
-        column(DocumentNo; "No.") { } column(CompanyName; CompanyInfo.Name) { }
-        dataitem(Line; "Sales Invoice Line") { DataItemLink = "Document No." = field("No."); DataItemLinkReference = Header; column(Description; Description) { } column(LineAmount; "Line Amount") { } }
-        trigger OnAfterGetRecord() begin CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code"); end;   // PER DOCUMENT
-    } }
-    var CompanyInfo: Record "Company Information"; Language: Codeunit Language;
-    trigger OnPreReport() begin CompanyInfo.Get(); end;
+    Caption = '<Caption>'; UsageCategory = Documents; ApplicationArea = All; DefaultLayout = Word; WordLayout = './src/Report/<AFFIX><Name>.docx'; DataAccessIntent = ReadOnly; WordMergeDataItem = Header;
+    dataset { dataitem(Header; "Sales Invoice Header") { RequestFilterFields = "No.", "Posting Date"; column(DocumentNo; "No.") { } dataitem(Line; "Sales Invoice Line") { DataItemLink = "Document No." = field("No."); DataItemLinkReference = Header; column(Description; Description) { } column(LineAmount; "Line Amount") { } } trigger OnAfterGetRecord() begin CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code"); end; } }
+    var Language: Codeunit Language;
 }

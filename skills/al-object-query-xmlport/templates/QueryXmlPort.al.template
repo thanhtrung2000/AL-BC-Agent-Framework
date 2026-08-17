@@ -1,19 +1,5 @@
 // WARNING: every non-aggregated column joins the implicit GROUP BY.
-query <ID> "<AFFIX> Vendor Spend"
-{
-    QueryType = Normal; DataAccessIntent = ReadOnly;
-    elements { dataitem(H; "Purch. Inv. Header")
-    {
-        column(VendorNo; "Buy-from Vendor No.") { }
-        column(TotalAmount; "Amount Including VAT") { Method = Sum; }
-    } }
-}
-xmlport <ID+1> "<AFFIX> Vendor Import"
-{
-    Format = VariableText; FieldSeparator = ';'; Direction = Import; TextEncoding = UTF8;
-    schema { textelement(Root) { tableelement(Buf; "<AFFIX> Vendor Buffer")
-    {
-        fieldelement(No; Buf."<AFFIX> Vendor No.") { }
-        textelement(AmountText) { trigger OnAfterAssignVariable() begin if not Evaluate(Buf."<AFFIX> Amount", AmountText, 9) then Error('Bad amount'); end; }
-    } } }
-}
+query <ID> "<AFFIX> Vendor Spend" { QueryType = Normal; DataAccessIntent = ReadOnly;
+    elements { dataitem(H; "Purch. Inv. Header") { column(VendorNo; "Buy-from Vendor No.") { } column(TotalAmount; "Amount Including VAT") { Method = Sum; } } } }
+xmlport <ID+1> "<AFFIX> Vendor Import" { Format = VariableText; FieldSeparator = ';'; Direction = Import; TextEncoding = UTF8;
+    schema { textelement(Root) { tableelement(Buf; "<AFFIX> Vendor Buffer") { fieldelement(No; Buf."<AFFIX> Vendor No.") { } textelement(AmountText) { trigger OnAfterAssignVariable() begin if not Evaluate(Buf."<AFFIX> Amount", AmountText, 9) then Error('Bad amount'); end; } } } } }

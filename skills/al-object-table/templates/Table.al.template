@@ -8,9 +8,5 @@ table <ID> "<AFFIX> <Name>"
         field(20; "<AFFIX> Amount"; Decimal) { Caption = 'Amount'; DataClassification = CustomerContent; AutoFormatType = 1; }
     }
     keys { key(PK; "<AFFIX> Code") { Clustered = true; } }
-    fieldgroups
-    {
-        fieldgroup(DropDown; "<AFFIX> Code", "<AFFIX> Description") { }
-        fieldgroup(Brick; "<AFFIX> Code", "<AFFIX> Description", "<AFFIX> Amount") { }
-    }
+    fieldgroups { fieldgroup(DropDown; "<AFFIX> Code", "<AFFIX> Description") { } fieldgroup(Brick; "<AFFIX> Code", "<AFFIX> Description", "<AFFIX> Amount") { } }
 }

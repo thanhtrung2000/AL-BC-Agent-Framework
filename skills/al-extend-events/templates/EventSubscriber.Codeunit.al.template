@@ -1,26 +1,15 @@
-// Event subscriber - THIN dispatcher. Business logic -> object-builder codeunit.
-// name: "<AFFIX> <Area> Subscribers"  location: src/EventSubscribers/
+// Event subscriber - THIN dispatcher. name: "<AFFIX> <Area> Subscribers"  location: src/EventSubscribers/
 codeunit <ID> "<AFFIX> <Area> Subscribers"
 {
     Access = Internal;
     var Mgt: Codeunit "<AFFIX> <Area> Mgt.";
-    // Last two bools: SkipOnMissingLicense, SkipOnMissingPermission.
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterPostSalesDoc', '', true, true)]
     local procedure OnAfterPostSalesDoc(var SalesHeader: Record "Sales Header"; SalesInvoiceHeader: Record "Sales Invoice Header")
-    begin
-        Mgt.HandlePostedSalesInvoice(SalesInvoiceHeader);   // do NOT throw unless posting MUST block
-    end;
+    begin Mgt.HandlePostedSalesInvoice(SalesInvoiceHeader); end;
     [EventSubscriber(ObjectType::Table, Database::Customer, 'OnAfterInsertEvent', '', true, true)]
     local procedure OnAfterCustomerInsert(var Rec: Record Customer; RunTrigger: Boolean)
-    begin
-        if Rec.IsTemporary() then exit;   // trigger events fire for temp records too
-        Mgt.DefaultCustomerSpendSettings(Rec);
-    end;
+    begin if Rec.IsTemporary() then exit; Mgt.DefaultCustomerSpendSettings(Rec); end;
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"<Base Codeunit>", 'OnBeforeDoSomething', '', true, true)]
     local procedure OnBeforeDoSomething(var Rec: Record "<Some Table>"; var IsHandled: Boolean)
-    begin
-        if not Mgt.ShouldOverride(Rec) then exit;   // let base logic run
-        Mgt.DoSomethingInstead(Rec); IsHandled := true;   // base logic skipped
-    end;
-    // Need an external call? Do NOT call HTTP here (locks held). Enqueue to a job queue instead.
+    begin if not Mgt.ShouldOverride(Rec) then exit; Mgt.DoSomethingInstead(Rec); IsHandled := true; end;
 }

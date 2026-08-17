@@ -1,3 +1,2 @@
-// AppSource only. Verify service-plan GUIDs against Microsoft's current list.
 entitlement "<AFFIX> Essential" { Type = PerUserServicePlan; Id = '<bc-essential-guid>'; ObjectEntitlements = "<AFFIX> All"; }
-entitlement "<AFFIX> Team Member" { Type = PerUserServicePlan; Id = '<bc-team-member-guid>'; ObjectEntitlements = "<AFFIX> Read"; }   // READ-ONLY or AppSource rejects
+entitlement "<AFFIX> Team Member" { Type = PerUserServicePlan; Id = '<bc-team-member-guid>'; ObjectEntitlements = "<AFFIX> Read"; }

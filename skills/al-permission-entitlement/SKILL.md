@@ -1,6 +1,6 @@
 ---
 name: al-permission-entitlement
-description: Author entitlements that map permission sets to licence types for AppSource.
+description: Author entitlements mapping permission sets to licence types for AppSource.
 ---
 
 # Entitlements

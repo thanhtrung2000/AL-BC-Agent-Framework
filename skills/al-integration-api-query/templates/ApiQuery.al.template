@@ -1,11 +1,2 @@
-// WARNING: every non-aggregated column forms the implicit GROUP BY.
-query <ID> "<AFFIX> Vendor Spend API"
-{
-    QueryType = API; APIPublisher = '<publisher>'; APIGroup = '<group>'; APIVersion = 'v1.0';
-    EntityName = 'vendorSpend'; EntitySetName = 'vendorSpends'; DataAccessIntent = ReadOnly;
-    elements { dataitem(H; "Purch. Inv. Header")
-    {
-        column(vendorNo; "Buy-from Vendor No.") { }
-        column(totalAmount; "Amount Including VAT") { Method = Sum; }
-    } }
-}
+query <ID> "<AFFIX> Vendor Spend API" { QueryType = API; APIPublisher = '<publisher>'; APIGroup = '<group>'; APIVersion = 'v1.0'; EntityName = 'vendorSpend'; EntitySetName = 'vendorSpends'; DataAccessIntent = ReadOnly;
+    elements { dataitem(H; "Purch. Inv. Header") { column(vendorNo; "Buy-from Vendor No.") { } column(totalAmount; "Amount Including VAT") { Method = Sum; } } } }

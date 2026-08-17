@@ -1,12 +1,3 @@
-permissionset <ID> "<AFFIX> <Area>"
-{
-    Caption = '<Area>'; Assignable = false;
-    Permissions =
-        tabledata "<AFFIX> <Entity>"  = RIMD,
-        tabledata "Sales Header"      = Rimd,   // lowercase = indirect
-        codeunit  "<AFFIX> <Entity> Mgt." = X,
-        page      "<AFFIX> <Entity> List" = X,
-        report    "<AFFIX> <Name> Statistics" = X;
-}
+permissionset <ID> "<AFFIX> <Area>" { Caption = '<Area>'; Assignable = false; Permissions = tabledata "<AFFIX> <Entity>" = RIMD, tabledata "Sales Header" = Rimd, codeunit "<AFFIX> <Entity> Mgt." = X, page "<AFFIX> <Entity> List" = X, report "<AFFIX> <Name> Statistics" = X; }
 permissionset <ID+1> "<AFFIX> All" { Caption = '<Extension> - All'; Assignable = true; IncludedPermissionSets = "<AFFIX> <Area>"; }
 permissionset <ID+2> "<AFFIX> Read" { Caption = '<Extension> - Read Only'; Assignable = true; Permissions = tabledata "<AFFIX> <Entity>" = R, page "<AFFIX> <Entity> List" = X; }

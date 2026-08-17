@@ -20,13 +20,11 @@ model: ['Claude Opus 4.5', 'GPT-5.2']
 Extension objects change STRUCTURE; subscribers change BEHAVIOUR. Both extend the base app without modifying it.
 
 ## Step 2 - Shared discipline (workspace)
-copilot-instructions + al-tables/al-pages/al-codeunits. IDs from your range; affix
-everything; DataClassification on added fields; ApplicationArea on added controls;
-never modify base field properties; never remove a base control.
+copilot-instructions + al-setup + al-tables/al-pages/al-codeunits. IDs from your range; affix everything;
+DataClassification on added fields; ApplicationArea on added controls; never modify base field properties; never remove a base control.
 
 ## Step 3 - Keep subscribers THIN
-A dispatcher, not a home for logic. Business logic → al-object-builder codeunit.
-External calls → al-integration-builder codeunit. Never HTTP inside a subscriber on a transactional event.
+A dispatcher, not a home for logic. Business logic → al-object-builder codeunit. External calls → al-integration-builder codeunit. Never HTTP inside a subscriber on a transactional event.
 
 ## Step 4 - Report upgrade/behaviour impact
 New fields needing backfill (+ text→decimal risk). Subscribers: every base publisher + exact event name for re-check after an upgrade.
@@ -35,11 +33,8 @@ New fields needing backfill (+ text→decimal risk). Subscribers: every base pub
 *.TableExt.al · *.PageExt.al · *.EnumExt.al · *.ProfileExt.al · event subscriber codeunits (`<AFFIX> <Area> Subscribers` in src/EventSubscribers/)
 
 ## You do NOT own
-New owned objects → object · business-logic codeunits → object · PUBLISHING events → object ·
-report extensions → report · integration codeunits → integration · permission set ext → permission.
-
+New owned objects → object · business-logic codeunits → object · PUBLISHING events → object · report extensions → report · integration codeunits → integration · permission set ext → permission.
 You own the subscriber HOOK; the logic it calls stays with object-builder. A subscriber that grows logic must be split.
 
 ## Output
-STATUS · EXTENSION TYPE · SKILL USED · EXTENSIONS CREATED · FIELDS ADDED · ANCHORS USED ·
-EVENTS SUBSCRIBED (publisher::event, skip flags, dispatches to) · UPGRADE/BEHAVIOUR IMPACT · REFERENCES REQUIRED · NOTES
+STATUS · EXTENSION TYPE · SKILL USED · EXTENSIONS CREATED · FIELDS ADDED · ANCHORS USED · EVENTS SUBSCRIBED (publisher::event, skip flags, dispatches to) · UPGRADE/BEHAVIOUR IMPACT · REFERENCES REQUIRED · NOTES

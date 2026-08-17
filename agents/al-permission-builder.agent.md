@@ -18,8 +18,7 @@ Runs LAST — can only cover objects that exist.
 No AppSource mention → "entitlement not required".
 
 ## Step 2 - Shared discipline (workspace)
-copilot-instructions. Enumerate every object; grant the minimum; indirect permissions on base
-tables written via a base codeunit; never SUPER or a wildcard.
+copilot-instructions + al-setup. Enumerate every object; grant the minimum; indirect permissions on base tables written via a base codeunit; never SUPER or a wildcard.
 
 ## You own
 *.PermissionSet.al · *.PermissionSetExt.al · *.Entitlement.al

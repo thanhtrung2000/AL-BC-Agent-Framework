@@ -1,5 +1,3 @@
-// Base enum must be Extensible = true. Value IDs from your own range.
-enumextension <ID> "<AFFIX> <BaseEnum> Ext" extends "<BaseEnum>"
-{ value(<ID>; "<AFFIX> CryptoTransfer") { Caption = 'Crypto Transfer'; Implementation = "<Base Interface>" = "<AFFIX> Crypto Handler"; } }
+enumextension <ID> "<AFFIX> <BaseEnum> Ext" extends "<BaseEnum>" { value(<ID>; "<AFFIX> CryptoTransfer") { Caption = 'Crypto Transfer'; Implementation = "<Base Interface>" = "<AFFIX> Crypto Handler"; } }
 profileextension "<AFFIX> BM Ext" extends "BUSINESS MANAGER" { Caption = 'Business Manager (<Publisher>)'; }
 pagecustomization "<AFFIX> BM Role Center" customizes "Business Manager Role Center" { layout { modify(Control1) { Visible = false; } } }

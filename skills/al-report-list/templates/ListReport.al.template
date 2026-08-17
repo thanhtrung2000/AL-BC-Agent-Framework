@@ -1,11 +1,6 @@
 report <ID> "<AFFIX> <Name> List"
 {
     Caption = '<Caption>'; UsageCategory = ReportsAndAnalysis; ApplicationArea = All; DataAccessIntent = ReadOnly; MaximumDatasetSize = 100000;
-    dataset { dataitem(Entry; "G/L Entry")
-    {
-        RequestFilterFields = "G/L Account No.", "Posting Date";
-        column(EntryNo; "Entry No.") { } column(Amount; Amount) { }
-        trigger OnPreDataItem() begin SetCurrentKey("G/L Account No.", "Posting Date"); SetLoadFields("Entry No.", Amount); end;
-    } }
+    dataset { dataitem(Entry; "G/L Entry") { RequestFilterFields = "G/L Account No.", "Posting Date"; column(EntryNo; "Entry No.") { } column(Amount; Amount) { } trigger OnPreDataItem() begin SetCurrentKey("G/L Account No.", "Posting Date"); SetLoadFields("Entry No.", Amount); end; } }
     rendering { layout("<AFFIX><Name>Layout") { Type = RDLC; LayoutFile = './src/Report/<AFFIX><Name>.rdl'; } }
 }

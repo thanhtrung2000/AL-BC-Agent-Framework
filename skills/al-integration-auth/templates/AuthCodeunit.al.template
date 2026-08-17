@@ -1,26 +1,9 @@
-// Secrets in Isolated Storage. Refresh BEFORE expiry, not on 401.
 codeunit <ID> "<AFFIX> <Service> Auth"
 {
-    Access = Internal;
-    var TokenKeyTok: Label '<AFFIX>_<SERVICE>_TOKEN', Locked = true; SecretKeyTok: Label '<AFFIX>_<SERVICE>_SECRET', Locked = true;
-        ExpiryKeyTok: Label '<AFFIX>_<SERVICE>_EXPIRY', Locked = true; NoCredErr: Label 'No credential for %1.', Comment = '%1 = service';
-    procedure GetAccessToken(): Text
-    var Cached: Text; ExpTxt: Text; Exp: DateTime;
-    begin
-        if IsolatedStorage.Get(TokenKeyTok, DataScope::Company, Cached) then
-            if IsolatedStorage.Get(ExpiryKeyTok, DataScope::Company, ExpTxt) then
-                if Evaluate(Exp, ExpTxt, 9) then
-                    if CurrentDateTime() < (Exp - 60000) then exit(Cached);   // 60s margin
-        exit(RequestNewToken());
-    end;
-    local procedure RequestNewToken(): Text
-    var NewToken: Text;
-    begin
-        // POST client_credentials, read access_token + expires_in ...
-        IsolatedStorage.SetEncrypted(TokenKeyTok, NewToken, DataScope::Company);
-        IsolatedStorage.Set(ExpiryKeyTok, Format(CurrentDateTime() + 3600000, 0, 9), DataScope::Company);
-        exit(NewToken);
-    end;
-    procedure SetClientSecret(NewValue: Text)
-    begin IsolatedStorage.SetEncrypted(SecretKeyTok, NewValue, DataScope::Company); if IsolatedStorage.Contains(TokenKeyTok, DataScope::Company) then IsolatedStorage.Delete(TokenKeyTok, DataScope::Company); end;
+    Access = Internal; var TokenKeyTok: Label '<AFFIX>_<SERVICE>_TOKEN', Locked = true; SecretKeyTok: Label '<AFFIX>_<SERVICE>_SECRET', Locked = true; ExpiryKeyTok: Label '<AFFIX>_<SERVICE>_EXPIRY', Locked = true; NoCredErr: Label 'No credential for %1.', Comment = '%1 = service';
+    procedure GetAccessToken(): Text var Cached: Text; ExpTxt: Text; Exp: DateTime; begin
+        if IsolatedStorage.Get(TokenKeyTok, DataScope::Company, Cached) then if IsolatedStorage.Get(ExpiryKeyTok, DataScope::Company, ExpTxt) then if Evaluate(Exp, ExpTxt, 9) then if CurrentDateTime() < (Exp - 60000) then exit(Cached);
+        exit(RequestNewToken()); end;
+    local procedure RequestNewToken(): Text var NewToken: Text; begin IsolatedStorage.SetEncrypted(TokenKeyTok, NewToken, DataScope::Company); IsolatedStorage.Set(ExpiryKeyTok, Format(CurrentDateTime() + 3600000, 0, 9), DataScope::Company); exit(NewToken); end;
+    procedure SetClientSecret(NewValue: Text) begin IsolatedStorage.SetEncrypted(SecretKeyTok, NewValue, DataScope::Company); if IsolatedStorage.Contains(TokenKeyTok, DataScope::Company) then IsolatedStorage.Delete(TokenKeyTok, DataScope::Company); end;
 }

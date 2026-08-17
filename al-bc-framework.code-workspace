@@ -5,7 +5,7 @@
     "explorer.fileNesting.enabled": true,
     "explorer.fileNesting.patterns": {
       "plugin.json": "marketplace.json, .gitignore, *.code-workspace, check-plugin-ready.ps1, release.ps1",
-      "README.md": "CHANGELOG.md"
+      "README.md": "CHANGELOG.md, SETUP-GUIDE.md"
     },
     "chat.plugins.enabled": true
   },

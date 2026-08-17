@@ -1,14 +1,3 @@
-// URL is a PERMANENT contract.
-page <ID> "<AFFIX> <Entity> API"
-{
-    PageType = API; APIPublisher = '<publisher>'; APIGroup = '<group>'; APIVersion = 'v1.0';
-    EntityName = '<entityName>'; EntitySetName = '<entitySetName>';
-    SourceTable = "<AFFIX> <Entity>"; ODataKeyFields = SystemId; DelayedInsert = true; Extensible = false;
-    layout { area(Content) { repeater(Group)
-    {
-        field(id; Rec.SystemId) { Caption = 'Id', Locked = true; Editable = false; }
-        field(code; Rec."<AFFIX> Code") { Caption = 'Code', Locked = true; }
-        field(lastModifiedDateTime; Rec.SystemModifiedAt) { Caption = 'LastModifiedDateTime', Locked = true; Editable = false; }  // delta sync
-    } } }
-    trigger OnInsertRecord(BelowxRec: Boolean): Boolean begin exit(true); end;   // validate the payload
-}
+page <ID> "<AFFIX> <Entity> API" { PageType = API; APIPublisher = '<publisher>'; APIGroup = '<group>'; APIVersion = 'v1.0'; EntityName = '<entityName>'; EntitySetName = '<entitySetName>'; SourceTable = "<AFFIX> <Entity>"; ODataKeyFields = SystemId; DelayedInsert = true; Extensible = false;
+    layout { area(Content) { repeater(Group) { field(id; Rec.SystemId) { Caption = 'Id', Locked = true; Editable = false; } field(code; Rec."<AFFIX> Code") { Caption = 'Code', Locked = true; } field(lastModifiedDateTime; Rec.SystemModifiedAt) { Caption = 'LastModifiedDateTime', Locked = true; Editable = false; } } } }
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean begin exit(true); end; }

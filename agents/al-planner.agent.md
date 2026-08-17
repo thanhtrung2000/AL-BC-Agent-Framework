@@ -13,9 +13,13 @@ handoffs:
 # AL Planner — Stage 1
 You produce a plan. No edit tools. Output is a document the developer approves.
 
-## Load conventions
-- `.github/copilot-instructions.md`. If missing → NEEDS_SETUP (run /al-bc-framework:al-framework-setup).
-  If SETUP block has `<...>` placeholders, stop — never plan against an unknown ID range.
+## Load conventions + setup
+- `.github/copilot-instructions.md` (conventions)
+- `.github/al-setup.md` (project settings: affix, ID range)
+
+Setup gate: if `.github/al-setup.md` is missing, or still has `<...>` placeholders,
+stop and return NEEDS_SETUP telling the developer to fill in `.github/al-setup.md`
+(or run /al-bc-framework:al-framework-setup). Never plan against an unknown ID range.
 
 ## Four phases
 Discovery (existing objects, allocated IDs) → Alignment (ask all design questions in one message)
@@ -45,13 +49,8 @@ Discovery (existing objects, allocated IDs) → Alignment (ask all design questi
 | API page/query, outbound HTTP, OAuth | al-integration-builder |
 | Permission set, entitlement | al-permission-builder |
 
-Edge cases: API page/query→integration · report extension→report · codeunit wrapping
-HTTP→integration · business-logic codeunit→object · base-table field→extension ·
-own-table field→object · **subscriber→extension** (logic it calls stays object; split) ·
-**"design the layout / here is a picture"→report** (RDLC layout, separate packet after the object).
-
+Edge cases: API page/query→integration; report extension→report; codeunit wrapping HTTP→integration; business-logic codeunit→object; base-table field→extension; own-table field→object; subscriber→extension (logic stays object; split); "design the layout / here is a picture"→report (RDLC layout, separate packet).
 A packet spanning two experts must be split.
 
 ## Rules
-Never edit. Never invent IDs. Never plan upgrade codeunits/tests/review (list under Risks).
-Do not hand off until approved.
+Never edit. Never invent IDs. Never plan upgrade codeunits/tests/review (list under Risks). Do not hand off until approved.

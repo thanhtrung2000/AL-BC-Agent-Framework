@@ -1,5 +1,1 @@
-tableextension <ID> "<AFFIX> <BaseTable> Ext" extends "<BaseTable>"
-{
-    fields { field(<ID>; "<AFFIX> Spend Alert Threshold"; Decimal) { Caption = 'Spend Alert Threshold'; DataClassification = CustomerContent; AutoFormatType = 1; } }
-    // Do NOT modify base field properties. Behaviour belongs in a subscriber.
-}
+tableextension <ID> "<AFFIX> <BaseTable> Ext" extends "<BaseTable>" { fields { field(<ID>; "<AFFIX> Spend Alert Threshold"; Decimal) { Caption = 'Spend Alert Threshold'; DataClassification = CustomerContent; AutoFormatType = 1; } } }

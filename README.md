@@ -1,15 +1,17 @@
-# AL Copilot Framework v2.1.1 — Agent Plugin
+# AL Copilot Framework v2.2.0 — Agent Plugin
 Plan → Implement automation for Business Central AL development. A read-only planner drafts a
 work-packet plan; an orchestrator routes each packet to a domain expert; each expert classifies
 the sub-type first, then loads one focused skill.
 
-**7 agents · 23 skills · 22 templates · 4 commands · 7 instruction files**
+**7 agents · 23 skills · 22 templates · 4 commands · 8 instruction files (incl. al-setup.md)**
 
-## What's new in v2.1.1
-`al-report-rdlc-layout` — generate an RDLC layout (.rdl) from a **picture** or **Excel mock-up**,
-validated offline (XSD schema + field bindings + expression whitelist) so your single cloud-sandbox
-preview passes on the first try. It fills a validated template — never hand-writes RDL structure —
-and returns PREVIEW_REQUIRED, never "final". Report skills 6 → 7; total skills 22 → 23.
+## What's new in v2.2.0
+The SETUP block is now a SEPARATE file, `.github/al-setup.md`, which the framework NEVER overwrites.
+`copilot-instructions.md` becomes pure conventions that update freely. This makes instruction
+updates trivial and safe — no preservation logic, no risk to your project settings. Includes a
+`migrate-to-2.2.ps1` helper that moves existing SETUP values into al-setup.md without re-typing.
+
+New person? Read **SETUP-GUIDE.md** — the complete step-by-step flow.
 
 ## Architecture
 ```
@@ -22,18 +24,19 @@ and returns PREVIEW_REQUIRED, never "final". Report skills 6 → 7; total skills
      └─ al-permission-builder    (2 skills)   + al-framework-setup
 ```
 
-## Install
+## Install (see SETUP-GUIDE.md for the full walkthrough)
 1. `pwsh ./check-plugin-ready.ps1` → PLUGIN_READY=OK
-2. `git init && git add . && git commit -m "v2.1.1"` (from THIS folder)
-3. `git push -u origin main && git tag v2.1.1 && git push --tags`
-4. BC project → Chat: Install Plugin From Source → repo URL → reload
-5. `/al-bc-framework:al-framework-setup` → fill SETUP → commit
+2. `git init && git add . && git commit -m "v2.2.0"` (from THIS folder) ; push ; tag v2.2.0
+3. BC project → Chat: Install Plugin From Source → repo URL → reload
+4. `pwsh <plugin-root>/skills/al-framework-setup/scripts/install-instructions.ps1`
+5. Fill `.github/al-setup.md` → commit
 
 ## Commands
 `/al-bc-framework:al-feature` · `:al-quick-object` · `:al-stat-report` · `:al-report-layout` · `:al-framework-setup`
 
-## RDLC layout — the honest boundary
-Cloud-only cannot test-RUN the report, so this is NOT "zero error, never runs". It IS: three offline
-checks that eliminate structure/binding/expression failures, so the one Ctrl+F5 preview succeeds
-nearly every time. Adding a local validation container later upgrades PREVIEW_REQUIRED to VERIFIED
-without changing the skill. See CHANGELOG.md.
+## The v2.2.0 SETUP split — why it matters
+| File | Owner | Updates on a framework release? |
+|---|---|---|
+| copilot-instructions.md | Framework | Yes — overwritten freely |
+| al-setup.md | You | Never — protected |
+Because they are separate, updating conventions can never wipe your affix/ID range. See CHANGELOG.md.

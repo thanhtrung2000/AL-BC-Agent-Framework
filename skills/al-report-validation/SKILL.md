@@ -5,7 +5,7 @@ description: Build validation / pre-posting check reports that list problems wit
 
 # Validation Report
 Start from [ValidationReport.al.template](./templates/ValidationReport.al.template).
-DataAccessIntent=ReadOnly - **never modifies data**. Scan into a temp error buffer with RecordId for drill-through, grouped by severity, errors first. Share the scan as a codeunit procedure.
+DataAccessIntent=ReadOnly - **never modifies data**. Temp error buffer with RecordId for drill-through, grouped by severity. Share the scan as a codeunit procedure.
 | Symptom | Cause |
 |---|---|
 | Report changes data | Built as validation but writes |

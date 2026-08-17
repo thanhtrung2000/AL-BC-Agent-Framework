@@ -1,7 +1,1 @@
-pageextension <ID> "<AFFIX> <BasePage> Ext" extends "<BasePage>"
-{
-    layout { addlast(General)   // stable anchor
-    {
-        field("<AFFIX> Spend Alert Threshold"; Rec."<AFFIX> Spend Alert Threshold") { ApplicationArea = All; Caption = 'Spend Alert Threshold'; ToolTip = 'Specifies the threshold.'; }
-    } }
-}
+pageextension <ID> "<AFFIX> <BasePage> Ext" extends "<BasePage>" { layout { addlast(General) { field("<AFFIX> Spend Alert Threshold"; Rec."<AFFIX> Spend Alert Threshold") { ApplicationArea = All; Caption = 'Spend Alert Threshold'; ToolTip = 'Specifies the threshold.'; } } } }

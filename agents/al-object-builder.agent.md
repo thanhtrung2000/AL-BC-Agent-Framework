@@ -18,16 +18,14 @@ model: ['Claude Opus 4.5', 'GPT-5.2']
 | Fixed value set, or a contract with implementations | Enum/Interface | [al-object-enum-interface](../skills/al-object-enum-interface/SKILL.md) |
 | Read-only joined data, or file import/export | Query/XMLport | [al-object-query-xmlport](../skills/al-object-query-xmlport/SKILL.md) |
 
-Rules: "Setup" → Table + Card page · API page → OUT_OF_SCOPE integration · codeunit
-wrapping HTTP → integration · codeunit SUBSCRIBING to a base event → extension · extending a base object → extension.
+Rules: "Setup"→Table + Card page · API page→OUT_OF_SCOPE integration · codeunit wrapping HTTP→integration · codeunit SUBSCRIBING to a base event→extension · extending a base object→extension.
 
 ## Step 2 — Allocate IDs
-From the range in your prompt. Never invent. Missing range/affix → NEEDS_INPUT.
+From the range in your prompt (sourced from al-setup.md). Never invent. Missing range/affix → NEEDS_INPUT.
 
 ## Step 3 — Shared discipline (workspace)
-`.github/copilot-instructions.md` + al-tables/al-pages/al-codeunits instructions.
-Affix everything · Caption on visible · DataClassification on every table+field ·
-ApplicationArea on every page control · SetLoadFields on wide tables.
+`.github/copilot-instructions.md`, `.github/al-setup.md`, + al-tables/al-pages/al-codeunits instructions.
+Affix everything · Caption on visible · DataClassification on every table+field · ApplicationArea on every page control · SetLoadFields on wide tables.
 
 ## You own
 *.Table.al · *.Page.al · *.Codeunit.al · *.Enum.al · *.Interface.al · *.Query.al · *.XmlPort.al

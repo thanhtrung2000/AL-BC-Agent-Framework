@@ -1,34 +1,36 @@
 # Changelog — AL Copilot Framework
 
-## [2.1.1] — 2026-08-17
+## [2.2.0] — 2026-08-17
 ### Added
-- **al-report-rdlc-layout skill** on al-report-builder — generates a BC RDLC layout (.rdl) from a
-  picture (primary) or an Excel mock-up. Reads the target into a layout map, binds each column to a
-  dataset field, fills a validated RDL template (never hand-writes structure), and runs an offline
-  validator: (1) XSD schema, (2) field bindings vs the AL dataset, (3) expression whitelist. Returns
-  STATUS: PREVIEW_REQUIRED with a single Ctrl+F5 step. Bundles ReportLayout.rdl.template and validate-rdl.ps1.
-- New command /al-bc-framework:al-report-layout.
+- **al-setup.md** — a separate, team-owned SETUP file in .github/. Holds the 5 project settings
+  (affix, ID ranges, target version, publisher). The framework NEVER overwrites it.
+- **migrate-to-2.2.ps1** — extracts SETUP values from a v2.1.x copilot-instructions.md into the new
+  al-setup.md and swaps in the pure conventions file. Values preserved; no re-typing. Verified.
+- **SETUP-GUIDE.md** — complete step-by-step user guide: plugin install, per-repo setup, daily loop, updates.
 ### Changed
-- al-report-builder now classifies 7 types (document, list, statistical, processing, validation,
-  extension, RDLC layout). The "never fabricate .rdlc" rule stands for the six OBJECT skills; the
-  new layout skill is the exception because it works from a source, fills a validated template, and
-  validates offline before handing back.
-### Why offline-validated instead of "just generate"
-RDLC is a large XML doc validated against an XSD, but expressions run on a separate engine. XSD +
-binding checks catch the structural and "field not found" failures offline; an expression whitelist
-avoids the ones that fail the compiler. Cloud-only cannot test-RUN, so the residual is one preview.
+- **copilot-instructions.md is now pure conventions** — framework-owned, safe to overwrite on every
+  update. The SETUP block moved out to al-setup.md.
+- **install-instructions.ps1** copies conventions + 6 scoped files (overwrite), and al-setup.md ONLY
+  IF ABSENT — your filled-in settings are never touched.
+- **All agents' setup gate** now reads .github/al-setup.md instead of a SETUP block inside conventions.
+- **al-plan-handoff** setup gate points at al-setup.md.
+### Why
+In v2.1.x the SETUP block lived inside copilot-instructions.md, so updating conventions risked
+overwriting team settings (handled by preservation logic in update-instructions.ps1). Splitting the
+two concerns removes that risk entirely: conventions update like any other file; settings are a
+separate, protected file. Instruction updates become trivial.
 ### Team action
-Update the plugin; re-run /al-bc-framework:al-framework-setup -Force.
-### Upgrade path
-Add a local BC container (validation only; cloud dev workflow unchanged) to enable a headless
-run-and-capture step, turning PREVIEW_REQUIRED into VERIFIED. Skill is written for that seam.
+Update the plugin, then run migrate-to-2.2.ps1 once per existing repo (or install-instructions.ps1
+for fresh repos). Your al-setup.md values are preserved.
+
+## [2.1.1] — 2026-08-17
+al-report-rdlc-layout skill — generate an RDLC layout from a picture/Excel, offline-validated. Report skills 6 → 7.
 
 ## [2.1.0] — 2026-08-17
-al-extend-events skill on al-extension-builder — event subscribers as an extension of base behaviour.
-Skills 21 → 22; agents stay 7.
+al-extend-events skill — event subscribers as an extension of base behaviour. Skills 21 → 22.
 
 ## [2.0.1] — 2026-08-17
-Patch. al-plan-handoff.instructions.md (7th instruction file) so the built-in /plan hands off to al-implementer.
+al-plan-handoff.instructions.md — built-in /plan hands off to al-implementer.
 
 ## [2.0.0] — 2026-08-03
 Breaking. Every expert classifies first, then loads one focused skill. Skills 5 → 21.
