@@ -2,13 +2,9 @@
   "name": "al-bc-tools",
   "owner": { "name": "Trung Pham" },
   "plugins": [
-    {
-      "name": "al-bc-framework",
-      "source": "./",
-      "version": "2.0.0",
+    { "name": "al-bc-framework", "source": "./", "version": "2.1.1",
       "description": "Plan to Implement automation for Microsoft Dynamics 365 Business Central AL development.",
       "category": "development",
-      "keywords": ["business-central", "dynamics-365", "al", "erp", "code-generation"]
-    }
+      "keywords": ["business-central","dynamics-365","al","erp","code-generation"] }
   ]
 }

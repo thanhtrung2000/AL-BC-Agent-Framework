@@ -1,78 +1,12 @@
-// Granular permission set - one per functional area.
-// Assignable = false; users receive it via the composite/rollup set.
-
 permissionset <ID> "<AFFIX> <Area>"
 {
-    Caption = '<Area>';
-    Assignable = false;
-
+    Caption = '<Area>'; Assignable = false;
     Permissions =
-        // --- Tables: grant only what the code ACTUALLY does ----------------
-        tabledata "<AFFIX> <Entity>"          = RIMD,   // justified: created and deleted by <Codeunit>
-        tabledata "<AFFIX> <Entity> Line"     = RIMD,
-        tabledata "<AFFIX> Setup"             = RIM,    // never deleted
-        tabledata "<AFFIX> Statistics Buffer" = R,      // read-only projection
-
-        // --- Base tables: read-only, or INDIRECT (lowercase) where written
-        //     only through a base codeunit. Direct IMD on a base table is a
-        //     security review finding.
-        tabledata "Purch. Inv. Header"        = R,
-        tabledata "Vendor"                    = R,
-        tabledata "Sales Header"              = Rimd,   // lowercase = indirect
-
-        // --- Executable objects: X ----------------------------------------
-        codeunit  "<AFFIX> <Entity> Mgt."     = X,
-        codeunit  "<AFFIX> Statistics Mgt."   = X,
-        page      "<AFFIX> <Entity> List"     = X,
-        page      "<AFFIX> <Entity> Card"     = X,
-        page      "<AFFIX> Setup"             = X,
-        page      "<AFFIX> <Entity> API"      = X,      // API pages need X too
-        report    "<AFFIX> <Name> Statistics" = X,
-        query     "<AFFIX> <Entity> Query"    = X,
-        xmlport   "<AFFIX> <Entity> Import"   = X;
-}
-
-
-// ---------------------------------------------------------------------------
-// COMPOSITE / ROLLUP - this is what administrators assign.
-// EVERY granular set must be included here or users never receive it.
-// ---------------------------------------------------------------------------
-permissionset <ID+1> "<AFFIX> All"
-{
-    Caption = '<Extension Name> - All';
-    Assignable = true;
-
-    IncludedPermissionSets = "<AFFIX> <Area>", "<AFFIX> <OtherArea>";
-}
-
-
-// ---------------------------------------------------------------------------
-// READ-ONLY VARIANT - for reporting and viewer roles, and for Team Member
-// licences (which must not have write access).
-// ---------------------------------------------------------------------------
-permissionset <ID+2> "<AFFIX> Read"
-{
-    Caption = '<Extension Name> - Read Only';
-    Assignable = true;
-
-    Permissions =
-        tabledata "<AFFIX> <Entity>"          = R,
-        tabledata "<AFFIX> <Entity> Line"     = R,
-        tabledata "<AFFIX> Setup"             = R,
-        tabledata "<AFFIX> Statistics Buffer" = R,
-        page      "<AFFIX> <Entity> List"     = X,
+        tabledata "<AFFIX> <Entity>"  = RIMD,
+        tabledata "Sales Header"      = Rimd,   // lowercase = indirect
+        codeunit  "<AFFIX> <Entity> Mgt." = X,
+        page      "<AFFIX> <Entity> List" = X,
         report    "<AFFIX> <Name> Statistics" = X;
 }
-
-
-// ---------------------------------------------------------------------------
-// PERMISSION SET EXTENSION - adds your objects to a BASE set, so users who
-// already hold that base role get your feature automatically.
-// Prefer this over asking administrators to assign an extra set.
-// ---------------------------------------------------------------------------
-permissionsetextension <ID+3> "<AFFIX> D365 Basic Ext" extends "D365 BASIC"
-{
-    Permissions =
-        tabledata "<AFFIX> Setup"         = R,
-        page      "<AFFIX> <Entity> List" = X;
-}
+permissionset <ID+1> "<AFFIX> All" { Caption = '<Extension> - All'; Assignable = true; IncludedPermissionSets = "<AFFIX> <Area>"; }
+permissionset <ID+2> "<AFFIX> Read" { Caption = '<Extension> - Read Only'; Assignable = true; Permissions = tabledata "<AFFIX> <Entity>" = R, page "<AFFIX> <Entity> List" = X; }

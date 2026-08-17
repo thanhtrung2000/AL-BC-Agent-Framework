@@ -1,24 +1,5 @@
 {
-  "$comment": [
-    "Copy this to .github/copilot/settings.json in EACH Business Central",
-    "extension repository where your team should use the framework.",
-    "",
-    "VS Code shows a recommendation notification the first time a teammate",
-    "sends a chat message in that workspace. They install with one click.",
-    "",
-    "Replace <your-org> with your GitHub organisation or user name."
-  ],
-
-  "extraKnownMarketplaces": {
-    "al-bc-tools": {
-      "source": {
-        "source": "github",
-        "repo": "<your-org>/al-bc-framework"
-      }
-    }
-  },
-
-  "enabledPlugins": {
-    "al-bc-framework@al-bc-tools": true
-  }
+  "$comment": ["Copy to .github/copilot/settings.json in each BC repo. Replace <your-org>."],
+  "extraKnownMarketplaces": { "al-bc-tools": { "source": { "source": "github", "repo": "<your-org>/al-bc-framework" } } },
+  "enabledPlugins": { "al-bc-framework@al-bc-tools": true }
 }

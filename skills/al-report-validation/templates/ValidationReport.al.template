@@ -1,165 +1,17 @@
-// Validation report: finds problems, NEVER fixes them.
-// If it modifies data it is a Processing-only report, not a validation report.
-
 report <ID> "<AFFIX> <Name> Check"
 {
-    Caption = '<Caption>';
-    UsageCategory = ReportsAndAnalysis;
-    ApplicationArea = All;
-    DefaultRenderingLayout = "<AFFIX><Name>Layout";
-    ProcessingOnly = false;
-    DataAccessIntent = ReadOnly;   // read-only is the DEFINING property
-
-    dataset
-    {
-        dataitem(CheckResult; "<AFFIX> Check Buffer")
-        {
-            UseTemporary = true;
-
-            column(EntryNo; "Entry No.") { }
-            column(Severity; Severity) { }
-            column(SeverityText; Format(Severity)) { }
-            column(SourceDocumentNo; "Source Document No.") { }
-            column(SourceLineNo; "Source Line No.") { }
-            column(Message; Message) { }
-            column(SuggestedFix; "Suggested Fix") { }
-
-            trigger OnPreDataItem()
-            begin
-                SetCurrentKey(Severity, "Entry No.");   // errors first
-            end;
-        }
-    }
-
-    requestpage
-    {
-        SaveValues = true;
-
-        layout
-        {
-            area(Content)
-            {
-                group(Options)
-                {
-                    Caption = 'Options';
-
-                    field(DocumentFilterCtrl; DocumentFilterText)
-                    {
-                        ApplicationArea = All;
-                        Caption = 'Document Filter';
-                        ToolTip = 'Specifies which documents to check. Leave blank for all open documents.';
-                    }
-                    field(IncludeWarningsCtrl; IncludeWarnings)
-                    {
-                        ApplicationArea = All;
-                        Caption = 'Include Warnings';
-                        ToolTip = 'Specifies whether to list warnings as well as errors.';
-                    }
-                }
-            }
-        }
-    }
-
-    rendering
-    {
-        layout("<AFFIX><Name>Layout")
-        {
-            Type = RDLC;
-            LayoutFile = './src/Report/<AFFIX><Name>.rdlc';
-            Caption = '<Caption> (RDLC)';
-        }
-    }
-
-    var
-        DocumentFilterText: Text;
-        IncludeWarnings: Boolean;
-        EntryNo: Integer;
-
-        MissingDimensionErr: Label 'Line %1 on document %2 is missing dimension %3.',
-            Comment = '%1 = line no, %2 = document no, %3 = dimension code';
-        MissingDimensionFixTxt: Label 'Open the document line and set the dimension.';
-        BlockedItemErr: Label 'Item %1 on document %2 is blocked.',
-            Comment = '%1 = item no, %2 = document no';
-        BlockedItemFixTxt: Label 'Unblock the item, or remove the line.';
-        NoIssuesMsg: Label 'No issues found.';
-
-    trigger OnPreReport()
-    begin
-        // Prefer calling a shared codeunit so posting code and this report
-        // cannot drift apart. If that codeunit does not exist yet, list it
-        // in REFERENCES REQUIRED - it belongs to al-object-builder.
-        RunChecks();
-
-        if CheckResult.IsEmpty() then
-            Message(NoIssuesMsg);
-    end;
-
+    Caption = '<Caption>'; UsageCategory = ReportsAndAnalysis; ApplicationArea = All; ProcessingOnly = false; DataAccessIntent = ReadOnly;   // NEVER modifies data
+    dataset { dataitem(Res; "<AFFIX> Check Buffer") { UseTemporary = true; column(Severity; Severity) { } column(Message; Message) { } trigger OnPreDataItem() begin SetCurrentKey(Severity, "Entry No."); end; } }
+    var EntryNo: Integer; MissingDimErr: Label 'Line %1 on %2 missing dimension.', Comment = '%1,%2';
+    trigger OnPreReport() begin RunChecks(); end;
     local procedure RunChecks()
-    var
-        SalesLine: Record "Sales Line";
+    var SL: Record "Sales Line";
     begin
-        CheckResult.Reset();
-        CheckResult.DeleteAll();
-
-        SalesLine.SetLoadFields("Document No.", "Line No.", "No.", Type, "Dimension Set ID");
-        if DocumentFilterText <> '' then
-            SalesLine.SetFilter("Document No.", DocumentFilterText);
-
-        if SalesLine.FindSet() then
-            repeat
-                CheckDimensions(SalesLine);
-                CheckItemBlocked(SalesLine);
-            until SalesLine.Next() = 0;
+        Res.Reset(); Res.DeleteAll();
+        if SL.FindSet() then repeat
+            if SL."Dimension Set ID" = 0 then AddIssue(Res.Severity::Error, SL.RecordId(), StrSubstNo(MissingDimErr, SL."Line No.", SL."Document No."));
+        until SL.Next() = 0;
     end;
-
-    local procedure CheckDimensions(var SalesLine: Record "Sales Line")
-    begin
-        if SalesLine."Dimension Set ID" <> 0 then
-            exit;
-
-        AddIssue(
-            CheckResult.Severity::Error,
-            SalesLine."Document No.",
-            SalesLine."Line No.",
-            SalesLine.RecordId(),
-            StrSubstNo(MissingDimensionErr, SalesLine."Line No.", SalesLine."Document No.", 'DEPARTMENT'),
-            MissingDimensionFixTxt);
-    end;
-
-    local procedure CheckItemBlocked(var SalesLine: Record "Sales Line")
-    var
-        Item: Record Item;
-    begin
-        if SalesLine.Type <> SalesLine.Type::Item then
-            exit;
-        if not Item.Get(SalesLine."No.") then
-            exit;
-        if not Item.Blocked then
-            exit;
-
-        AddIssue(
-            CheckResult.Severity::Error,
-            SalesLine."Document No.",
-            SalesLine."Line No.",
-            SalesLine.RecordId(),
-            StrSubstNo(BlockedItemErr, Item."No.", SalesLine."Document No."),
-            BlockedItemFixTxt);
-    end;
-
-    local procedure AddIssue(NewSeverity: Enum "<AFFIX> Check Severity"; DocNo: Code[20]; LineNo: Integer; SourceId: RecordId; NewMessage: Text; NewFix: Text)
-    begin
-        if (NewSeverity = NewSeverity::Warning) and not IncludeWarnings then
-            exit;
-
-        EntryNo += 1;
-        CheckResult.Init();
-        CheckResult."Entry No." := EntryNo;
-        CheckResult.Severity := NewSeverity;
-        CheckResult."Source Document No." := DocNo;
-        CheckResult."Source Line No." := LineNo;
-        CheckResult."Source Record ID" := SourceId;   // lets the user navigate
-        CheckResult.Message := CopyStr(NewMessage, 1, MaxStrLen(CheckResult.Message));
-        CheckResult."Suggested Fix" := CopyStr(NewFix, 1, MaxStrLen(CheckResult."Suggested Fix"));
-        CheckResult.Insert();
-    end;
+    local procedure AddIssue(Sev: Enum "<AFFIX> Check Severity"; SourceId: RecordId; Msg: Text)
+    begin EntryNo += 1; Res.Init(); Res."Entry No." := EntryNo; Res.Severity := Sev; Res."Source Record ID" := SourceId; Res.Message := CopyStr(Msg, 1, MaxStrLen(Res.Message)); Res.Insert(); end;
 }

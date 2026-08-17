@@ -1,164 +1,26 @@
-// Authentication & credential handling.
-// THE RULE: secrets go in Isolated Storage. Never a table field, never
-// app.json, never a hardcoded string, never a Label.
-
+// Secrets in Isolated Storage. Refresh BEFORE expiry, not on 401.
 codeunit <ID> "<AFFIX> <Service> Auth"
 {
     Access = Internal;
-
-    var
-        ClientIdKeyTok: Label '<AFFIX>_<SERVICE>_CLIENT_ID', Locked = true;
-        ClientSecretKeyTok: Label '<AFFIX>_<SERVICE>_CLIENT_SECRET', Locked = true;
-        TokenKeyTok: Label '<AFFIX>_<SERVICE>_TOKEN', Locked = true;
-        TokenExpiryKeyTok: Label '<AFFIX>_<SERVICE>_TOKEN_EXPIRY', Locked = true;
-        TokenUrlTok: Label 'https://<host>/oauth2/token', Locked = true;
-        ScopeTok: Label 'https://<host>/.default', Locked = true;
-
-        NoCredentialErr: Label 'No credential is configured for %1. Set it up on the integration setup page.', Comment = '%1 = service name';
-        TokenRequestFailedErr: Label 'Could not obtain an access token for %1. Status %2.', Comment = '%1 = service, %2 = status code';
-
-        SafetyMarginMs: Integer;
-
-    // -----------------------------------------------------------------------
-    // TOKEN ACQUISITION - cache with expiry, refresh BEFORE expiry.
-    // Refreshing on 401 means every expiry causes one user-visible error.
-    // -----------------------------------------------------------------------
+    var TokenKeyTok: Label '<AFFIX>_<SERVICE>_TOKEN', Locked = true; SecretKeyTok: Label '<AFFIX>_<SERVICE>_SECRET', Locked = true;
+        ExpiryKeyTok: Label '<AFFIX>_<SERVICE>_EXPIRY', Locked = true; NoCredErr: Label 'No credential for %1.', Comment = '%1 = service';
     procedure GetAccessToken(): Text
-    var
-        CachedToken: Text;
-        ExpiryText: Text;
-        TokenExpiry: DateTime;
+    var Cached: Text; ExpTxt: Text; Exp: DateTime;
     begin
-        SafetyMarginMs := 60000;   // refresh 60s early
-
-        if IsolatedStorage.Get(TokenKeyTok, DataScope::Company, CachedToken) then
-            if IsolatedStorage.Get(TokenExpiryKeyTok, DataScope::Company, ExpiryText) then
-                if Evaluate(TokenExpiry, ExpiryText, 9) then
-                    if CurrentDateTime() < (TokenExpiry - SafetyMarginMs) then
-                        exit(CachedToken);
-
+        if IsolatedStorage.Get(TokenKeyTok, DataScope::Company, Cached) then
+            if IsolatedStorage.Get(ExpiryKeyTok, DataScope::Company, ExpTxt) then
+                if Evaluate(Exp, ExpTxt, 9) then
+                    if CurrentDateTime() < (Exp - 60000) then exit(Cached);   // 60s margin
         exit(RequestNewToken());
     end;
-
     local procedure RequestNewToken(): Text
-    var
-        Client: HttpClient;
-        Request: HttpRequestMessage;
-        Response: HttpResponseMessage;
-        Content: HttpContent;
-        Headers: HttpHeaders;
-        ResponseText: Text;
-        Body: Text;
-        Json: JsonObject;
-        Token: JsonToken;
-        NewToken: Text;
-        ExpiresIn: Integer;
+    var NewToken: Text;
     begin
-        Body :=
-            'grant_type=client_credentials' +
-            '&client_id=' + GetClientId() +
-            '&client_secret=' + GetClientSecret() +
-            '&scope=' + ScopeTok;
-
-        Content.WriteFrom(Body);
-        Content.GetHeaders(Headers);
-        Headers.Clear();
-        Headers.Add('Content-Type', 'application/x-www-form-urlencoded');
-
-        Request.Content := Content;
-        Request.Method := 'POST';
-        Request.SetRequestUri(TokenUrlTok);
-
-        Client.Timeout := 30000;
-
-        if not Client.Send(Request, Response) then
-            Error(TokenRequestFailedErr, '<Service>', 0);
-
-        Response.Content().ReadAs(ResponseText);
-
-        if not Response.IsSuccessStatusCode() then
-            Error(TokenRequestFailedErr, '<Service>', Response.HttpStatusCode());
-
-        Json.ReadFrom(ResponseText);
-
-        if not Json.Get('access_token', Token) then
-            Error(TokenRequestFailedErr, '<Service>', Response.HttpStatusCode());
-        NewToken := Token.AsValue().AsText();
-
-        ExpiresIn := 3600;
-        if Json.Get('expires_in', Token) then
-            ExpiresIn := Token.AsValue().AsInteger();
-
+        // POST client_credentials, read access_token + expires_in ...
         IsolatedStorage.SetEncrypted(TokenKeyTok, NewToken, DataScope::Company);
-        IsolatedStorage.Set(
-            TokenExpiryKeyTok,
-            Format(CurrentDateTime() + (ExpiresIn * 1000), 0, 9),
-            DataScope::Company);
-
+        IsolatedStorage.Set(ExpiryKeyTok, Format(CurrentDateTime() + 3600000, 0, 9), DataScope::Company);
         exit(NewToken);
     end;
-
-    // -----------------------------------------------------------------------
-    // CREDENTIAL STORAGE - written by the setup page, never displayed back.
-    // -----------------------------------------------------------------------
-    procedure SetClientId(NewValue: Text)
-    begin
-        IsolatedStorage.SetEncrypted(ClientIdKeyTok, NewValue, DataScope::Company);
-    end;
-
     procedure SetClientSecret(NewValue: Text)
-    begin
-        IsolatedStorage.SetEncrypted(ClientSecretKeyTok, NewValue, DataScope::Company);
-        // Force a token refresh on next call.
-        if IsolatedStorage.Contains(TokenKeyTok, DataScope::Company) then
-            IsolatedStorage.Delete(TokenKeyTok, DataScope::Company);
-    end;
-
-    procedure HasCredentials(): Boolean
-    begin
-        exit(
-            IsolatedStorage.Contains(ClientIdKeyTok, DataScope::Company) and
-            IsolatedStorage.Contains(ClientSecretKeyTok, DataScope::Company));
-    end;
-
-    local procedure GetClientId(): Text
-    var
-        Value: Text;
-    begin
-        if not IsolatedStorage.Get(ClientIdKeyTok, DataScope::Company, Value) then
-            Error(NoCredentialErr, '<Service>');
-        exit(Value);
-    end;
-
-    local procedure GetClientSecret(): Text
-    var
-        Value: Text;
-    begin
-        if not IsolatedStorage.Get(ClientSecretKeyTok, DataScope::Company, Value) then
-            Error(NoCredentialErr, '<Service>');
-        exit(Value);
-    end;
-
-    // NEVER log tokens, keys, secrets, or full Authorization headers -
-    // not in telemetry, not in error messages, not in a log table.
+    begin IsolatedStorage.SetEncrypted(SecretKeyTok, NewValue, DataScope::Company); if IsolatedStorage.Contains(TokenKeyTok, DataScope::Company) then IsolatedStorage.Delete(TokenKeyTok, DataScope::Company); end;
 }
-
-
-// ---------------------------------------------------------------------------
-// SETUP PAGE - the secret field is NOT bound to a table column.
-// It writes to Isolated Storage and shows a placeholder when a value exists.
-// ---------------------------------------------------------------------------
-//
-//  field(ClientSecret; ClientSecretMask)
-//  {
-//      ApplicationArea = All;
-//      Caption = 'Client Secret';
-//      ExtendedDatatype = Masked;
-//      ToolTip = 'Specifies the client secret. Stored encrypted; never displayed.';
-//
-//      trigger OnValidate()
-//      begin
-//          AuthMgt.SetClientSecret(ClientSecretMask);
-//          ClientSecretMask := '***';
-//      end;
-//  }

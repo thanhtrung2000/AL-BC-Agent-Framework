@@ -1,60 +1,16 @@
 codeunit <ID> "<AFFIX> <Name> Mgt."
 {
     Access = Public;
-    Permissions = tabledata "<AFFIX> <Name>" = rimd;
-
-    var
-        RecordNotFoundErr: Label 'The record %1 was not found.', Comment = '%1 = record code';
-        ProcessedMsg: Label '%1 records were processed.', Comment = '%1 = count';
-
-    /// <summary>
-    /// <What it does, what it requires, what it guarantees.>
-    /// </summary>
-    procedure Process(var SourceRec: Record "<AFFIX> <Name>"): Boolean
-    var
-        IsHandled: Boolean;
+    var NotFoundErr: Label 'Record %1 not found.', Comment = '%1 = code';
+    procedure Process(var Rec: Record "<AFFIX> <Name>"): Boolean
+    var IsHandled: Boolean;
     begin
-        // Extension point - lets consumers opt out without forking.
-        OnBeforeProcess(SourceRec, IsHandled);
-        if IsHandled then
-            exit(true);
-
-        if SourceRec."<AFFIX> Code" = '' then
-            Error(RecordNotFoundErr, SourceRec."<AFFIX> Code");
-
-        DoProcess(SourceRec);
-
-        OnAfterProcess(SourceRec);
+        OnBeforeProcess(Rec, IsHandled);
+        if IsHandled then exit(true);
+        if Rec."<AFFIX> Code" = '' then Error(NotFoundErr, Rec."<AFFIX> Code");
+        OnAfterProcess(Rec);
         exit(true);
     end;
-
-    procedure ProcessBatch(var SourceRec: Record "<AFFIX> <Name>"): Integer
-    var
-        Counter: Integer;
-    begin
-        // Load only the fields used - cloud SQL charges per column.
-        SourceRec.SetLoadFields("<AFFIX> Code", "<AFFIX> Amount");
-        if SourceRec.FindSet(true) then
-            repeat
-                if Process(SourceRec) then
-                    Counter += 1;
-            until SourceRec.Next() = 0;
-
-        exit(Counter);
-    end;
-
-    local procedure DoProcess(var SourceRec: Record "<AFFIX> <Name>")
-    begin
-        // Single responsibility - keep this small.
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeProcess(var SourceRec: Record "<AFFIX> <Name>"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterProcess(var SourceRec: Record "<AFFIX> <Name>")
-    begin
-    end;
+    [IntegrationEvent(false, false)] local procedure OnBeforeProcess(var Rec: Record "<AFFIX> <Name>"; var IsHandled: Boolean) begin end;
+    [IntegrationEvent(false, false)] local procedure OnAfterProcess(var Rec: Record "<AFFIX> <Name>") begin end;
 }
