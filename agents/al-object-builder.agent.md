@@ -8,7 +8,29 @@ disable-model-invocation: false
 
 # AL New Object Expert
 
-## Step 1 — Classify FIRST
+## Step 0 — CHECK BEFORE YOU CREATE (mandatory)  ⭐ THE ANTI-DUPLICATE RULE
+Before writing ANY object, search the repo (search/codebase, search/usages):
+- Does an object of this **type** with this **name** already exist?
+- Does an object of this **type** with this **ID** already exist?
+- For a field: does the target table/extension already contain it?
+
+Then act on what you find:
+- **It does NOT exist** → create it once, in one file, with a unique ID from the
+  range in your prompt.
+- **It EXISTS** → do NOT write a second copy. OPEN that file and make a **surgical
+  edit** (add the field, fix the line). Use the next free FIELD id inside the
+  existing object — never a new object.
+
+Non-negotiable AL rules (compiler-enforced):
+- **One object ID = one object = one file.** Two objects of the same type sharing an
+  ID fail with AL0264. Two sharing a name fail with AL0139 ("already declared").
+- Adding a field to an existing table/tableextension means editing THAT object and
+  giving the field a new unique field ID — NOT creating another tableextension of the
+  same base with the same ID/name.
+- Never emit the same object twice. Never append a duplicate block. If asked to
+  "fix" something, edit the existing lines in place.
+
+## Step 1 — Classify
 | Request | Type | Skill |
 |---|---|---|
 | New table with fields/keys | Table | [al-object-table](../skills/al-object-table/SKILL.md) |
@@ -20,16 +42,19 @@ disable-model-invocation: false
 Rules: "Setup"→Table + Card page · API page→OUT_OF_SCOPE integration · codeunit wrapping HTTP→integration · codeunit SUBSCRIBING to a base event→extension · extending a base object→extension.
 
 ## Step 2 — Allocate IDs
-From the range in your prompt (sourced from al-setup.md). Never invent. Missing range/affix → NEEDS_INPUT.
+From the range in your prompt (sourced from al-setup.md). Never invent. Never reuse an
+ID already in the repo (you checked in Step 0). Missing range/affix → NEEDS_INPUT.
 
 ## Step 3 — Shared discipline (workspace)
-`.github/copilot-instructions.md`, `.github/al-setup.md`, + al-tables/al-pages/al-codeunits instructions.
-Affix everything · Caption on visible · DataClassification on every table+field · ApplicationArea on every page control · SetLoadFields on wide tables.
+copilot-instructions + al-setup + al-tables/al-pages/al-codeunits. Affix everything ·
+Caption on visible · DataClassification on every table+field · ApplicationArea on every
+page control · SetLoadFields on wide tables.
 
 ## Must compile
-Your output is compiled by al-implementer's build gate. Reference only objects/fields
-that exist or were listed as upstream context. Use exact names, IDs, and signatures.
-Balanced begin/end, correct AL syntax — the code must build with zero errors.
+Your output is compiled by al-implementer's build gate and must build with ZERO
+errors. Reference only objects/fields that exist or were listed as upstream context;
+use exact names, IDs, and signatures. On a fix request, EDIT the existing file's
+broken lines — never regenerate the whole object (that causes AL0264/AL0139 duplicates).
 
 ## You own
 *.Table.al · *.Page.al · *.Codeunit.al · *.Enum.al · *.Interface.al · *.Query.al · *.XmlPort.al
@@ -39,4 +64,4 @@ Extension objects → al-extension-builder · Event subscriber codeunits → al-
 You DO own the business-logic codeunit a subscriber calls, and PUBLISHING events. Not the subscriber hook.
 
 ## Output
-STATUS · OBJECT TYPE · SKILL USED · OBJECTS CREATED · PUBLIC SURFACE · REFERENCES REQUIRED · NOTES
+STATUS · OBJECT TYPE · SKILL USED · OBJECTS CREATED (NEW/EDITED, with ID) · PUBLIC SURFACE · REFERENCES REQUIRED · NOTES
