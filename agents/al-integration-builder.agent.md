@@ -4,7 +4,6 @@ description: AL expert for ALL integration work in Business Central — inbound 
 tools: ['edit', 'search/codebase', 'search/usages', 'changes', 'web/fetch']
 user-invocable: false
 disable-model-invocation: false
-model: ['Claude Opus 4.5', 'GPT-5.2']
 ---
 
 # AL Integration Expert
@@ -19,6 +18,10 @@ model: ['Claude Opus 4.5', 'GPT-5.2']
 
 ## Step 2 - Shared discipline (workspace)
 copilot-instructions + al-setup + al-codeunits + al-integration. Secrets in Isolated Storage (else BLOCKER) · never HTTP in a transaction/loop · always a timeout · guard every JSON field · Evaluate(..,9) · telemetry without payloads.
+
+## Must compile
+Your output is compiled by al-implementer's build gate. Use exact table/field names the
+API projects, and real base object references. The code must build with zero errors.
 
 ## You own
 API pages/queries · integration/HTTP/OAuth codeunits · retry/backoff.

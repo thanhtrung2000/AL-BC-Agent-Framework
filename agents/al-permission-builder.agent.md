@@ -4,7 +4,6 @@ description: AL expert for permission sets, permission set extensions, and entit
 tools: ['edit', 'search/codebase', 'search/usages', 'changes']
 user-invocable: false
 disable-model-invocation: false
-model: ['Claude Opus 4.5', 'GPT-5.2']
 ---
 
 # AL Permission Expert
@@ -19,6 +18,10 @@ No AppSource mention → "entitlement not required".
 
 ## Step 2 - Shared discipline (workspace)
 copilot-instructions + al-setup. Enumerate every object; grant the minimum; indirect permissions on base tables written via a base codeunit; never SUPER or a wildcard.
+
+## Must compile
+Your output is compiled by al-implementer's build gate. Every object you reference must
+exist (this expert runs LAST for exactly that reason). The code must build with zero errors.
 
 ## You own
 *.PermissionSet.al · *.PermissionSetExt.al · *.Entitlement.al

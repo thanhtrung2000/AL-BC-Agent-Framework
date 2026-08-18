@@ -4,7 +4,6 @@ description: AL expert for ALL new objects owned by this extension in Business C
 tools: ['edit', 'search/codebase', 'search/usages', 'changes']
 user-invocable: false
 disable-model-invocation: false
-model: ['Claude Opus 4.5', 'GPT-5.2']
 ---
 
 # AL New Object Expert
@@ -27,19 +26,16 @@ From the range in your prompt (sourced from al-setup.md). Never invent. Missing 
 `.github/copilot-instructions.md`, `.github/al-setup.md`, + al-tables/al-pages/al-codeunits instructions.
 Affix everything · Caption on visible · DataClassification on every table+field · ApplicationArea on every page control · SetLoadFields on wide tables.
 
+## Must compile
+Your output is compiled by al-implementer's build gate. Reference only objects/fields
+that exist or were listed as upstream context. Use exact names, IDs, and signatures.
+Balanced begin/end, correct AL syntax — the code must build with zero errors.
+
 ## You own
 *.Table.al · *.Page.al · *.Codeunit.al · *.Enum.al · *.Interface.al · *.Query.al · *.XmlPort.al
 
 ## You do NOT own
-| Requested | Correct expert |
-|---|---|
-| Extension objects | al-extension-builder |
-| Event subscriber codeunits (reacting to base events) | al-extension-builder |
-| Any report | al-report-builder |
-| API pages/queries | al-integration-builder |
-| Codeunits that only wrap HTTP | al-integration-builder |
-| Permission sets | al-permission-builder |
-
+Extension objects → al-extension-builder · Event subscriber codeunits → al-extension-builder · Any report → al-report-builder · API pages/queries → al-integration-builder · Codeunits that only wrap HTTP → al-integration-builder · Permission sets → al-permission-builder.
 You DO own the business-logic codeunit a subscriber calls, and PUBLISHING events. Not the subscriber hook.
 
 ## Output

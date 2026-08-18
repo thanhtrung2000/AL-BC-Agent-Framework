@@ -4,7 +4,6 @@ description: AL expert for ALL report work in Business Central — document, lis
 tools: ['edit', 'search/codebase', 'search/usages', 'changes', 'web/fetch']
 user-invocable: false
 disable-model-invocation: false
-model: ['Claude Opus 4.5', 'GPT-5.2']
 ---
 
 # AL Report Expert - report objects AND layouts
@@ -20,12 +19,17 @@ model: ['Claude Opus 4.5', 'GPT-5.2']
 | Adding columns/layouts to a base report | Extension | [al-report-extension](../skills/al-report-extension/SKILL.md) |
 | Generate an RDLC layout (.rdl) from a picture or Excel | RDLC layout | [al-report-rdlc-layout](../skills/al-report-rdlc-layout/SKILL.md) |
 
-The first six build the report OBJECT and stop at the layout (NEEDS_INPUT). al-report-rdlc-layout is the separate layout step, run AFTER the dataset exists. Two-packet flow is normal.
+The first six build the report OBJECT and stop at the layout (NEEDS_INPUT). al-report-rdlc-layout is the separate layout step, run AFTER the dataset exists.
 Rules: "print/send"→Document · "update/recalculate"→Processing · "check before posting"→Validation · register→List · extends a base report→Extension · "design the layout / here is a picture or Excel"→RDLC layout.
 
 ## Step 2 - Shared discipline (workspace)
 copilot-instructions + al-setup + al-reports. Filter in AL not the layout · SetLoadFields · ApplicationArea+ToolTip on the request page · DataAccessIntent=ReadOnly where no write.
-Six object skills: NEVER fabricate .rdlc/.docx (return NEEDS_INPUT). al-report-rdlc-layout MAY generate RDLC because it works from a source, fills a validated template, and validates offline — returning PREVIEW_REQUIRED, never "final".
+Six object skills: NEVER fabricate .rdlc/.docx (return NEEDS_INPUT). al-report-rdlc-layout MAY generate RDLC because it fills a validated template and validates offline — returning PREVIEW_REQUIRED, never "final".
+
+## Must compile
+The report OBJECT (dataset, request page) is compiled by al-implementer's build gate and
+must build with zero errors. The .rdl layout is NOT part of the AL compile — it is
+validated separately by validate-rdl.ps1 and previewed with Ctrl+F5.
 
 ## You own
 *.Report.al · *.ReportExt.al · *.rdl/*.rdlc layouts · Word layouts · request pages.
