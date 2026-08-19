@@ -1,43 +1,31 @@
 # Changelog — AL Copilot Framework
 
-## [2.2.0] — 2026-08-17
-### Added
-- **al-setup.md** — a separate, team-owned SETUP file in .github/. Holds the 5 project settings
-  (affix, ID ranges, target version, publisher). The framework NEVER overwrites it.
-- **migrate-to-2.2.ps1** — extracts SETUP values from a v2.1.x copilot-instructions.md into the new
-  al-setup.md and swaps in the pure conventions file. Values preserved; no re-typing. Verified.
-- **SETUP-GUIDE.md** — complete step-by-step user guide: plugin install, per-repo setup, daily loop, updates.
-### Changed
-- **copilot-instructions.md is now pure conventions** — framework-owned, safe to overwrite on every
-  update. The SETUP block moved out to al-setup.md.
-- **install-instructions.ps1** copies conventions + 6 scoped files (overwrite), and al-setup.md ONLY
-  IF ABSENT — your filled-in settings are never touched.
-- **All agents' setup gate** now reads .github/al-setup.md instead of a SETUP block inside conventions.
-- **al-plan-handoff** setup gate points at al-setup.md.
-### Why
-In v2.1.x the SETUP block lived inside copilot-instructions.md, so updating conventions risked
-overwriting team settings (handled by preservation logic in update-instructions.ps1). Splitting the
-two concerns removes that risk entirely: conventions update like any other file; settings are a
-separate, protected file. Instruction updates become trivial.
-### Team action
-Update the plugin, then run migrate-to-2.2.ps1 once per existing repo (or install-instructions.ps1
-for fresh repos). Your al-setup.md values are preserved.
+## [1.0.0] — 2026-08-03  (first team release)
+Consolidates the internal 2.x iteration into a single, tested release. Every fix found
+during sandbox testing is folded in.
 
-## [2.1.1] — 2026-08-17
-al-report-rdlc-layout skill — generate an RDLC layout from a picture/Excel, offline-validated. Report skills 6 → 7.
+### Included
+- **Plan → Implement pipeline** — planner + implementer orchestrator + 5 domain experts.
+- **23 skills** across object (5), extension (4), report (7 incl. RDLC-from-picture),
+  integration (4), permission (2), plus the setup skill.
+- **Anti-duplicate protocol** — every builder checks the code first and edits in place;
+  the implementer runs a dedupe check. Prevents AL0264 (duplicate ID) / AL0139 (duplicate name).
+- **Mandatory build gate** — the implementer compiles and drives to zero errors; never
+  reports "done" over a red build; fix loop edits in place (never regenerates).
+- **AL syntax knowledge** — always-on al-language-fundamentals (var/begin) + on-demand
+  per-object syntax references (table, page, codeunit, enum/interface, query/xmlport,
+  extensions, event subscribers).
+- **Model unpinned** — the developer chooses the model in VS Code (cost control).
+- **SETUP split** — project settings in .github/al-setup.md, never overwritten.
+- **Robust installer** — locates the plugin root by searching upward (no folder-level bug).
+- **RDLC layout skill** — offline-validated (.rdl from a picture/Excel); PREVIEW_REQUIRED.
+- **Plan handoff** — the built-in /plan agent can hand off to al-implementer.
 
-## [2.1.0] — 2026-08-17
-al-extend-events skill — event subscribers as an extension of base behaviour. Skills 21 → 22.
-
-## [2.0.1] — 2026-08-17
-al-plan-handoff.instructions.md — built-in /plan hands off to al-implementer.
-
-## [2.0.0] — 2026-08-03
-Breaking. Every expert classifies first, then loads one focused skill. Skills 5 → 21.
-
-## [1.1.0] / [1.0.0] — 2026-08-03
-Plugin packaging / first release.
+### Internal pre-release history (for reference)
+2.0.0 skill split · 2.0.1 plan handoff · 2.1.0 events skill · 2.1.1 RDLC layout ·
+2.2.0 SETUP split. These were development iterations; 1.0.0 is the first release to the team.
 
 ## Roadmap
-- v3.0.0 — Review & Test gates (al-reviewer + 3 parallel reviewers, al-test-builder, al-upgrade-builder)
-- v4.0.0 — CI (Azure DevOps PR validation) + org-level instructions
+- v1.1.0 — Review & Test gates (al-reviewer + parallel read-only reviewers, al-test-builder)
+- v1.2.0 — CI (Azure DevOps PR validation) + org-level instructions
+- Later — optional local container to turn RDLC PREVIEW_REQUIRED into VERIFIED

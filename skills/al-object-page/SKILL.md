@@ -5,7 +5,6 @@ description: Create new AL pages - list, card, document, worksheet, part, role c
 
 # Create a Page
 Start from [Page.al.template](./templates/Page.al.template).
-- Correct PageType; UsageCategory or not searchable. ApplicationArea on **every** control. ToolTip "Specifies ". Actions delegate to a codeunit. API pages → integration.
-| Symptom | Cause |
-|---|---|
-| Field invisible | ApplicationArea missing |
+- Correct PageType; UsageCategory or not searchable. ApplicationArea on **every** control. ToolTip "Specifies ". Actions delegate to a codeunit.
+
+Full AL grammar (loads on demand): [page-syntax.md](./reference/page-syntax.md)

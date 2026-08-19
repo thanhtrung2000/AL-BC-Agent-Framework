@@ -1,1 +1,1 @@
-reportextension <ID> "<AFFIX> <BaseReport> Ext" extends "<BaseReport>" { dataset { add(Header) { column(<AFFIX>SpendThreshold; "<AFFIX> Spend Alert Threshold") { } } } rendering { layout("<AFFIX><BaseReport>Layout") { Type = RDLC; LayoutFile = './src/Report/<AFFIX><BaseReport>.rdl'; Caption = '<Base Report> (<Publisher>)'; } } }
+reportextension <ID> "<AFFIX> <BaseReport> Ext" extends "<BaseReport>" { dataset { add(Header) { column(<AFFIX>SpendThreshold; "<AFFIX> Spend Alert Threshold") { } } } }

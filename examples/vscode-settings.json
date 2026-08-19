@@ -1,7 +1,16 @@
 {
-  "$comment": ["Merge into .vscode/settings.json in each BC repo."],
-  "al.codeAnalyzers": ["${CodeCop}","${UICop}","${AppSourceCop}","${PerTenantExtensionCop}"],
+  "$comment": [
+    "Merge into .vscode/settings.json in each BC repo."
+  ],
+  "al.codeAnalyzers": [
+    "${CodeCop}",
+    "${UICop}",
+    "${AppSourceCop}",
+    "${PerTenantExtensionCop}"
+  ],
   "al.enableCodeAnalysis": true,
   "chat.plugins.enabled": true,
-  "chat.plugins.marketplaces": ["<your-org>/al-bc-framework"]
+  "chat.plugins.marketplaces": [
+    "<your-org>/al-bc-framework"
+  ]
 }

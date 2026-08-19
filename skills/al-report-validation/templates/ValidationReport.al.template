@@ -2,9 +2,18 @@ report <ID> "<AFFIX> <Name> Check"
 {
     Caption = '<Caption>'; UsageCategory = ReportsAndAnalysis; ApplicationArea = All; ProcessingOnly = false; DataAccessIntent = ReadOnly;
     dataset { dataitem(Res; "<AFFIX> Check Buffer") { UseTemporary = true; column(Severity; Severity) { } column(Message; Message) { } trigger OnPreDataItem() begin SetCurrentKey(Severity, "Entry No."); end; } }
-    var EntryNo: Integer; MissingDimErr: Label 'Line %1 on %2 missing dimension.', Comment = '%1,%2';
+    var EntryNo: Integer;
     trigger OnPreReport() begin RunChecks(); end;
-    local procedure RunChecks() var SL: Record "Sales Line"; begin Res.Reset(); Res.DeleteAll();
-        if SL.FindSet() then repeat if SL."Dimension Set ID" = 0 then AddIssue(Res.Severity::Error, SL.RecordId(), StrSubstNo(MissingDimErr, SL."Line No.", SL."Document No.")); until SL.Next() = 0; end;
-    local procedure AddIssue(Sev: Enum "<AFFIX> Check Severity"; SourceId: RecordId; Msg: Text) begin EntryNo += 1; Res.Init(); Res."Entry No." := EntryNo; Res.Severity := Sev; Res."Source Record ID" := SourceId; Res.Message := CopyStr(Msg, 1, MaxStrLen(Res.Message)); Res.Insert(); end;
+    local procedure RunChecks()
+    var
+        SL: Record "Sales Line";
+    begin
+        Res.Reset(); Res.DeleteAll();
+        if SL.FindSet() then
+            repeat
+                if SL."Dimension Set ID" = 0 then AddIssue(Res.Severity::Error, SL.RecordId());
+            until SL.Next() = 0;
+    end;
+    local procedure AddIssue(Sev: Enum "<AFFIX> Check Severity"; SourceId: RecordId)
+    begin EntryNo += 1; Res.Init(); Res."Entry No." := EntryNo; Res.Severity := Sev; Res."Source Record ID" := SourceId; Res.Insert(); end;
 }

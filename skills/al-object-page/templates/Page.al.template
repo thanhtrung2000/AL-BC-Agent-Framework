@@ -1,7 +1,6 @@
 page <ID> "<AFFIX> <Name> List"
 {
     Caption = '<Caption>'; PageType = List; UsageCategory = Lists; ApplicationArea = All; SourceTable = "<AFFIX> <Name>"; Editable = false;
-    layout { area(Content) { repeater(General)
-    { field("<AFFIX> Code"; Rec."<AFFIX> Code") { ApplicationArea = All; ToolTip = 'Specifies the code.'; } field("<AFFIX> Amount"; Rec."<AFFIX> Amount") { ApplicationArea = All; ToolTip = 'Specifies the amount.'; } } } }
+    layout { area(Content) { repeater(General) { field("<AFFIX> Code"; Rec."<AFFIX> Code") { ApplicationArea = All; ToolTip = 'Specifies the code.'; } } } }
     actions { area(Processing) { action("<AFFIX> Process") { ApplicationArea = All; Caption = 'Process'; ToolTip = 'Runs the process.'; Image = Process; trigger OnAction() var Mgt: Codeunit "<AFFIX> <Name> Mgt."; begin Mgt.Process(Rec); end; } } }
 }

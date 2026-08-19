@@ -1,7 +1,7 @@
 report <ID> "<AFFIX> Update <Name>"
 {
     Caption = '<Caption>'; UsageCategory = Tasks; ApplicationArea = All; ProcessingOnly = true; UseRequestPage = true;
-    dataset { dataitem(Item; Item) { RequestFilterFields = "No.", "Item Category Code"; trigger OnPreDataItem() begin RecordCount := Count(); if UpdateRecords then if not Confirm(ConfirmQst, false, RecordCount) then CurrReport.Quit(); end; trigger OnAfterGetRecord() begin Examined += 1; if not UpdateRecords then begin WouldChange += 1; exit; end; Item.Validate("Unit Price", NewValue); Item.Modify(true); Changed += 1; end; } }
+    dataset { dataitem(Item; Item) { RequestFilterFields = "No."; trigger OnPreDataItem() begin RecordCount := Count(); if UpdateRecords then if not Confirm(ConfirmQst, false, RecordCount) then CurrReport.Quit(); end; trigger OnAfterGetRecord() begin Examined += 1; if not UpdateRecords then begin WouldChange += 1; exit; end; Item.Validate("Unit Price", NewValue); Item.Modify(true); Changed += 1; end; } }
     var UpdateRecords: Boolean; NewValue: Decimal; RecordCount: Integer; Examined: Integer; Changed: Integer; WouldChange: Integer;
         ConfirmQst: Label 'Update %1 records?', Comment = '%1 = count'; ResultMsg: Label '%1 examined, %2 changed.', Comment = '%1,%2';
     trigger OnPostReport() begin Message(ResultMsg, Examined, Changed); end;

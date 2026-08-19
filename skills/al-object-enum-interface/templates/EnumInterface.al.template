@@ -1,4 +1,3 @@
 enum <ID> "<AFFIX> Period Type" { Extensible = true; value(0; Quarter) { Caption = 'Quarter'; } value(10; Year) { Caption = 'Year'; } }
 interface "<AFFIX> ICalculator" { procedure Calculate(VendorNo: Code[20]): Decimal; }
-enum <ID+1> "<AFFIX> Calc Method" implements "<AFFIX> ICalculator" { Extensible = true; value(0; Standard) { Caption = 'Standard'; Implementation = "<AFFIX> ICalculator" = "<AFFIX> Standard Calc"; } }
-codeunit <ID+2> "<AFFIX> Standard Calc" implements "<AFFIX> ICalculator" { Access = Internal; procedure Calculate(VendorNo: Code[20]): Decimal begin end; }
+codeunit <ID+1> "<AFFIX> Standard Calc" implements "<AFFIX> ICalculator" { Access = Internal; procedure Calculate(VendorNo: Code[20]): Decimal begin end; }

@@ -6,10 +6,4 @@ codeunit <ID> "<AFFIX> <Area> Subscribers"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterPostSalesDoc', '', true, true)]
     local procedure OnAfterPostSalesDoc(var SalesHeader: Record "Sales Header"; SalesInvoiceHeader: Record "Sales Invoice Header")
     begin Mgt.HandlePostedSalesInvoice(SalesInvoiceHeader); end;
-    [EventSubscriber(ObjectType::Table, Database::Customer, 'OnAfterInsertEvent', '', true, true)]
-    local procedure OnAfterCustomerInsert(var Rec: Record Customer; RunTrigger: Boolean)
-    begin if Rec.IsTemporary() then exit; Mgt.DefaultCustomerSpendSettings(Rec); end;
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"<Base Codeunit>", 'OnBeforeDoSomething', '', true, true)]
-    local procedure OnBeforeDoSomething(var Rec: Record "<Some Table>"; var IsHandled: Boolean)
-    begin if not Mgt.ShouldOverride(Rec) then exit; Mgt.DoSomethingInstead(Rec); IsHandled := true; end;
 }

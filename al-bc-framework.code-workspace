@@ -1,13 +1,24 @@
 {
-  "folders": [{ "name": "AL Copilot Framework (plugin)", "path": "." }],
+  "folders": [
+    {
+      "name": "AL Copilot Framework (plugin)",
+      "path": "."
+    }
+  ],
   "settings": {
-    "files.associations": { "*.agent.md": "markdown", "*.template": "al", "SKILL.md": "markdown" },
-    "explorer.fileNesting.enabled": true,
-    "explorer.fileNesting.patterns": {
-      "plugin.json": "marketplace.json, .gitignore, *.code-workspace, check-plugin-ready.ps1, release.ps1",
-      "README.md": "CHANGELOG.md, SETUP-GUIDE.md"
+    "files.associations": {
+      "*.agent.md": "markdown",
+      "*.template": "al",
+      "SKILL.md": "markdown"
     },
     "chat.plugins.enabled": true
   },
-  "extensions": { "recommendations": ["github.copilot","github.copilot-chat","ms-dynamics-smb.al","ms-vscode.powershell"] }
+  "extensions": {
+    "recommendations": [
+      "github.copilot",
+      "github.copilot-chat",
+      "ms-dynamics-smb.al",
+      "ms-vscode.powershell"
+    ]
+  }
 }

@@ -4,9 +4,8 @@ table <ID> "<AFFIX> <Name>"
     fields
     {
         field(1; "<AFFIX> Code"; Code[20]) { Caption = 'Code'; DataClassification = CustomerContent; NotBlank = true; }
-        field(2; "<AFFIX> Description"; Text[100]) { Caption = 'Description'; DataClassification = CustomerContent; }
         field(20; "<AFFIX> Amount"; Decimal) { Caption = 'Amount'; DataClassification = CustomerContent; AutoFormatType = 1; }
     }
     keys { key(PK; "<AFFIX> Code") { Clustered = true; } }
-    fieldgroups { fieldgroup(DropDown; "<AFFIX> Code", "<AFFIX> Description") { } fieldgroup(Brick; "<AFFIX> Code", "<AFFIX> Description", "<AFFIX> Amount") { } }
+    fieldgroups { fieldgroup(DropDown; "<AFFIX> Code", "<AFFIX> Amount") { } fieldgroup(Brick; "<AFFIX> Code", "<AFFIX> Amount") { } }
 }

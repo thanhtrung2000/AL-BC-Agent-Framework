@@ -1,5 +1,16 @@
 {
-  "$comment": ["Copy to .github/copilot/settings.json in each BC repo. Replace <your-org>."],
-  "extraKnownMarketplaces": { "al-bc-tools": { "source": { "source": "github", "repo": "<your-org>/al-bc-framework" } } },
-  "enabledPlugins": { "al-bc-framework@al-bc-tools": true }
+  "$comment": [
+    "Copy to .github/copilot/settings.json in each BC repo. Replace <your-org>."
+  ],
+  "extraKnownMarketplaces": {
+    "al-bc-tools": {
+      "source": {
+        "source": "github",
+        "repo": "<your-org>/al-bc-framework"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "al-bc-framework@al-bc-tools": true
+  }
 }

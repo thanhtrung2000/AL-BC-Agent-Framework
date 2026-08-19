@@ -4,11 +4,24 @@ report <ID> "<AFFIX> <Name> Statistics"
     dataset { dataitem(Agg; "<AFFIX> Statistics Buffer") { UseTemporary = true; column(VendorNo; "Vendor No.") { } column(TotalAmount; "Total Amount") { } } }
     var UseFiscalYear: Boolean;
     trigger OnPreReport() begin BuildBuffer(); end;
-    local procedure BuildBuffer() var H: Record "Purch. Inv. Header"; PS: Date; begin
+    local procedure BuildBuffer()
+    var
+        H: Record "Purch. Inv. Header";
+        PS: Date;
+    begin
         Agg.Reset(); Agg.DeleteAll();
-        if H.FindSet() then repeat PS := ResolvePeriod(H."Posting Date");
-            if not Agg.Get(H."Buy-from Vendor No.", PS) then begin Agg.Init(); Agg."Vendor No." := H."Buy-from Vendor No."; Agg."Period Start" := PS; Agg.Insert(); end;
-            Agg."Total Amount" += H."Amount Including VAT"; Agg.Modify(); until H.Next() = 0; end;
-    local procedure ResolvePeriod(D: Date): Date var AP: Record "Accounting Period"; begin
-        if UseFiscalYear then begin AP.SetRange("New Fiscal Year", true); AP.SetFilter("Starting Date", '<=%1', D); if AP.FindLast() then exit(AP."Starting Date"); end; exit(CalcDate('<-CQ>', D)); end;
+        if H.FindSet() then
+            repeat
+                PS := ResolvePeriod(H."Posting Date");
+                if not Agg.Get(H."Buy-from Vendor No.", PS) then begin Agg.Init(); Agg."Vendor No." := H."Buy-from Vendor No."; Agg."Period Start" := PS; Agg.Insert(); end;
+                Agg."Total Amount" += H."Amount Including VAT"; Agg.Modify();
+            until H.Next() = 0;
+    end;
+    local procedure ResolvePeriod(D: Date): Date
+    var
+        AP: Record "Accounting Period";
+    begin
+        if UseFiscalYear then begin AP.SetRange("New Fiscal Year", true); AP.SetFilter("Starting Date", '<=%1', D); if AP.FindLast() then exit(AP."Starting Date"); end;
+        exit(CalcDate('<-CQ>', D));
+    end;
 }
