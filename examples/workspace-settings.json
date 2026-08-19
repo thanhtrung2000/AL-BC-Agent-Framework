@@ -1,6 +1,6 @@
 {
   "$comment": [
-    "Copy to .github/copilot/settings.json in each BC repo. Replace <your-org>."
+    "Copy to .github/copilot/settings.json. Replace <your-org>."
   ],
   "extraKnownMarketplaces": {
     "al-bc-tools": {

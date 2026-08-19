@@ -6,4 +6,4 @@ agent: al-implementer
 Create a statistical report.
 **Source:** ${input:source:e.g. Posted Purchase Invoices}
 **Group by:** ${input:groupBy:e.g. vendor}
-Route to al-report-builder. Aggregate once into a temp buffer; build to zero errors.
+Route to al-report-builder. Defines a deterministic layout reference and asks for a picture to design it.

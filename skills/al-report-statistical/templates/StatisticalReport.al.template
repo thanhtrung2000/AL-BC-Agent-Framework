@@ -2,6 +2,7 @@ report <ID> "<AFFIX> <Name> Statistics"
 {
     Caption = '<Caption>'; UsageCategory = ReportsAndAnalysis; ApplicationArea = All; DataAccessIntent = ReadOnly;
     dataset { dataitem(Agg; "<AFFIX> Statistics Buffer") { UseTemporary = true; column(VendorNo; "Vendor No.") { } column(TotalAmount; "Total Amount") { } } }
+    rendering { layout("<AFFIX><Name>StatisticsLayout") { Type = RDLC; LayoutFile = './src/Report/<AFFIX><Name>Statistics.rdl'; } }
     var UseFiscalYear: Boolean;
     trigger OnPreReport() begin BuildBuffer(); end;
     local procedure BuildBuffer()

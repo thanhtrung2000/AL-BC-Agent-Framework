@@ -16,30 +16,24 @@ No approved plan → ask for @al-planner. Use NEW/EDIT: an EDIT packet overwrite
 ## Step 2 — Route (owned file types)
 object-builder: *.Table/Page/Codeunit/Enum/Interface/Query/XmlPort.al · extension-builder: *.TableExt/PageExt/EnumExt/ProfileExt.al + subscriber codeunits · report-builder: *.Report/ReportExt.al + *.rdl · integration-builder: API pages/queries + integration codeunits · permission-builder: *.PermissionSet/Entitlement.al. Split any two-expert packet.
 ## Step 3 — Sequence
-object → extension → report (object first, THEN its RDLC layout) → integration → permission (LAST). Parallel only when file sets are disjoint.
+object → extension → report (object first, THEN its RDLC layout if a picture is provided) → integration → permission (LAST). Parallel only when file sets are disjoint.
 ## Step 4 — Brief completely (8 elements)
 Intent · plan excerpt · NEW/EDIT (if EDIT, the exact file/object) · ID range + taken IDs · affix (al-setup.md) · files · upstream context (exact names/IDs/signatures) · boundaries.
 ## Step 5 — Verify each return
-Owned file types only. Record names/IDs for the next brief.
+Owned file types only. Record names/IDs for the next brief. If a report returns with a
+DEFINED-but-empty layout and no picture was provided, that is DONE — do not force a layout.
 ## Step 6 — BUILD GATE (mandatory, never skip)
-6.0  **DUPLICATE SCAN FIRST.** Run:
-     `pwsh <plugin-root>/skills/al-framework-setup/scripts/check-duplicates.ps1 -Root ./src`
-     If DUP_STATUS=FAIL → for each flagged file, re-brief the owning expert to OVERWRITE
-     that file with exactly ONE correct object (never append) → re-run the scan → only
-     proceed when DUP_STATUS=OK.
+6.0  **DUPLICATE SCAN FIRST:** `pwsh <plugin-root>/skills/al-framework-setup/scripts/check-duplicates.ps1 -Root ./src`. If DUP_STATUS=FAIL → re-brief the owning expert to OVERWRITE the flagged file with ONE object → re-scan → proceed only when DUP_STATUS=OK.
 6.1  Symbols: if `.alpackages/` empty → tell the developer to run `AL: Download Symbols`.
-6.2  Compile: try the AL command-line compiler via terminal; if not possible, print
-     `BUILD REQUIRED — run Ctrl+Shift+B and paste the Problems output` and wait.
-6.3  **Fix loop — OVERWRITE, NEVER APPEND.** Per error: identify the failing FILE/OBJECT
-     and owning expert → re-brief it to rewrite the WHOLE object in that file with the fix
-     → re-scan for duplicates → rebuild. 3 strikes on one file → escalate with the compiler output.
+6.2  Compile: try the AL command-line compiler via terminal; else print `BUILD REQUIRED — run Ctrl+Shift+B and paste the Problems output` and wait.
+6.3  **Fix loop — OVERWRITE, NEVER APPEND.** Per error: identify the failing FILE/OBJECT and owning expert → re-brief it to rewrite the WHOLE object in that file → re-scan → rebuild. 3 strikes → escalate with the compiler output.
 6.4  Analyzer WARNINGS don't block; never disable an analyzer.
-## Step 7 — Report (only after GREEN build + DUP_STATUS=OK)
+## Step 7 — Report (only after GREEN + DUP_STATUS=OK)
 ```
 DUPLICATES: none
 BUILD: pass (0 errors, <n> warnings)
 WORK PACKETS ... (NEW/EDIT)
-MANUAL FOLLOW-UP: review the diff · write tests · check upgrade impact · (RDLC: Ctrl+F5 preview)
+MANUAL FOLLOW-UP: review the diff · write tests · check upgrade impact · (RDLC: provide a picture then Ctrl+F5)
 ```
 Not green → `BUILD: FAILED — <n> error(s)` + exact errors + owning file. Nothing is "done" while red or duplicated.
 ## Rules

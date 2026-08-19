@@ -2,6 +2,7 @@ report <ID> "<AFFIX> <Name> Check"
 {
     Caption = '<Caption>'; UsageCategory = ReportsAndAnalysis; ApplicationArea = All; ProcessingOnly = false; DataAccessIntent = ReadOnly;
     dataset { dataitem(Res; "<AFFIX> Check Buffer") { UseTemporary = true; column(Severity; Severity) { } column(Message; Message) { } trigger OnPreDataItem() begin SetCurrentKey(Severity, "Entry No."); end; } }
+    rendering { layout("<AFFIX><Name>CheckLayout") { Type = RDLC; LayoutFile = './src/Report/<AFFIX><Name>Check.rdl'; } }
     var EntryNo: Integer;
     trigger OnPreReport() begin RunChecks(); end;
     local procedure RunChecks()

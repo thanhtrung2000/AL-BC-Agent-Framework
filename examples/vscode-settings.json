@@ -1,6 +1,6 @@
 {
   "$comment": [
-    "Merge into .vscode/settings.json in each BC repo."
+    "Merge into .vscode/settings.json."
   ],
   "al.codeAnalyzers": [
     "${CodeCop}",

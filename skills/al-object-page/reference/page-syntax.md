@@ -1,11 +1,9 @@
-# Page Syntax (loaded only when building a page)
+# Page Syntax
 ```al
 page 50100 "<AFFIX> <Name> List"
 {
-    Caption='<Caption>'; PageType=List; UsageCategory=Lists; ApplicationArea=All; SourceTable="<AFFIX> <Name>"; Editable=false;
+    Caption='<Caption>'; PageType=List; UsageCategory=Lists; ApplicationArea=All; SourceTable="<AFFIX> <Name>";
     layout { area(Content) { repeater(Group) { field("<AFFIX> Code"; Rec."<AFFIX> Code") { ApplicationArea=All; ToolTip='Specifies the code.'; } } } }
-    actions { area(Processing) { action("<AFFIX> Process") { ApplicationArea=All; Caption='Process'; ToolTip='Runs it.'; Image=Process; trigger OnAction() var Mgt: Codeunit "<AFFIX> <Name> Mgt."; begin Mgt.Process(Rec); end; } } }
 }
 ```
-PageType: List Card Document Worksheet ListPart CardPart RoleCenter API. Every field: ApplicationArea+ToolTip. Every action: ApplicationArea+Caption+ToolTip+Image, delegate to a codeunit.
-Do NOT: omit ApplicationArea · logic in OnAction · UsageCategory on API/parts · two objects per file.
+PageType: List Card Document Worksheet ListPart CardPart RoleCenter API. Every field: ApplicationArea+ToolTip. Actions delegate to a codeunit. Do NOT: omit ApplicationArea; logic in OnAction; two objects per file.

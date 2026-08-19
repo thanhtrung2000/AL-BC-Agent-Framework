@@ -1,6 +1,6 @@
 {
   "name": "al-bc-framework",
-  "description": "Plan to Implement automation for Microsoft Dynamics 365 Business Central AL development. A read-only planner drafts a work-packet plan; an orchestrator routes each packet to a domain expert; each expert enforces one-file-one-object, classifies the sub-type, loads one focused skill, and drives the build to zero errors.",
+  "description": "Plan to Implement automation for Microsoft Dynamics 365 Business Central AL development. A read-only planner drafts a work-packet plan; an orchestrator routes each packet to a domain expert; each expert enforces one-file-one-object, classifies the sub-type, loads one focused skill, links reports to layouts by a deterministic name, and drives the build to zero errors.",
   "version": "1.0.0",
   "author": {
     "name": "Trung Pham"
