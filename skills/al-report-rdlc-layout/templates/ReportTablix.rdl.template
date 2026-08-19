@@ -1,0 +1,95 @@
+<!-- ============================================================================
+     BUILD-FIRST TABLIX FRAGMENT  —  al-report-rdlc-layout
+     ----------------------------------------------------------------------------
+     This is a FRAGMENT, not a report. Paste it INSIDE <Body><ReportItems> of the
+     .rdl that the AL BUILD generated (Ctrl+Shift+B, then "AL: Generate report
+     layout"). It inherits the report's default namespace when pasted — do NOT add
+     xmlns here.
+
+     HARD RULES (this is the fix for "No declaration found for element DataField"):
+       - NEVER add <Report>, xmlns, <DataSources>, <DataSet>, <DataSets>, <Fields>,
+         <Field> or <DataField>. The BUILD owns the schema. You only fill this Tablix.
+       - Bind ONLY to fields the build already generated:  =Fields!<Column>.Value
+         where <Column> is an exact column() name from the report's dataset.
+       - DataSetName MUST be the build's dataset name: DataSet_Result.
+       - Replace every FILL_ slot. Delete any column you don't use (header cell +
+         detail cell + one TablixColumn + one column-hierarchy TablixMember).
+       - Then run validate-rdl.ps1 until RDL_STATUS=OK, then Ctrl+F5.
+     ============================================================================ -->
+<Tablix Name="FILL_TablixName">
+  <TablixBody>
+    <TablixColumns>
+      <TablixColumn><Width>2.5in</Width></TablixColumn>
+      <TablixColumn><Width>2in</Width></TablixColumn>
+      <TablixColumn><Width>1.5in</Width></TablixColumn>
+    </TablixColumns>
+    <TablixRows>
+      <!-- Header row (static captions from the picture) -->
+      <TablixRow>
+        <Height>0.3in</Height>
+        <TablixCells>
+          <TablixCell><CellContents>
+            <Textbox Name="hdr1"><Paragraphs><Paragraph><TextRuns><TextRun>
+              <Value>FILL_Header1</Value><Style><FontWeight>Bold</FontWeight></Style>
+            </TextRun></TextRuns></Paragraph></Paragraphs><Style /></Textbox>
+          </CellContents></TablixCell>
+          <TablixCell><CellContents>
+            <Textbox Name="hdr2"><Paragraphs><Paragraph><TextRuns><TextRun>
+              <Value>FILL_Header2</Value><Style><FontWeight>Bold</FontWeight></Style>
+            </TextRun></TextRuns></Paragraph></Paragraphs><Style /></Textbox>
+          </CellContents></TablixCell>
+          <TablixCell><CellContents>
+            <Textbox Name="hdr3"><Paragraphs><Paragraph><TextRuns><TextRun>
+              <Value>FILL_Header3</Value><Style><FontWeight>Bold</FontWeight><TextAlign>Right</TextAlign></Style>
+            </TextRun></TextRuns></Paragraph></Paragraphs><Style /></Textbox>
+          </CellContents></TablixCell>
+        </TablixCells>
+      </TablixRow>
+      <!-- Detail row (bound ONLY to build-generated fields) -->
+      <TablixRow>
+        <Height>0.25in</Height>
+        <TablixCells>
+          <TablixCell><CellContents>
+            <Textbox Name="dtl1"><Paragraphs><Paragraph><TextRuns><TextRun>
+              <Value>=Fields!FILL_Field1.Value</Value>
+            </TextRun></TextRuns></Paragraph></Paragraphs><Style /></Textbox>
+          </CellContents></TablixCell>
+          <TablixCell><CellContents>
+            <Textbox Name="dtl2"><Paragraphs><Paragraph><TextRuns><TextRun>
+              <Value>=Fields!FILL_Field2.Value</Value>
+            </TextRun></TextRuns></Paragraph></Paragraphs><Style /></Textbox>
+          </CellContents></TablixCell>
+          <TablixCell><CellContents>
+            <Textbox Name="dtl3"><Paragraphs><Paragraph><TextRuns><TextRun>
+              <Value>=Sum(Fields!FILL_Field3.Value)</Value><Style><TextAlign>Right</TextAlign></Style>
+            </TextRun></TextRuns></Paragraph></Paragraphs><Style /></Textbox>
+          </CellContents></TablixCell>
+        </TablixCells>
+      </TablixRow>
+    </TablixRows>
+  </TablixBody>
+  <TablixColumnHierarchy>
+    <TablixMembers>
+      <TablixMember />
+      <TablixMember />
+      <TablixMember />
+    </TablixMembers>
+  </TablixColumnHierarchy>
+  <TablixRowHierarchy>
+    <TablixMembers>
+      <!-- static header row -->
+      <TablixMember />
+      <!-- detail group over the build dataset -->
+      <TablixMember>
+        <Group Name="FILL_DetailGroup" />
+        <TablixMembers><TablixMember /></TablixMembers>
+      </TablixMember>
+    </TablixMembers>
+  </TablixRowHierarchy>
+  <DataSetName>DataSet_Result</DataSetName>
+  <Height>0.55in</Height>
+  <Width>6in</Width>
+  <Style>
+    <Border><Style>None</Style></Border>
+  </Style>
+</Tablix>
