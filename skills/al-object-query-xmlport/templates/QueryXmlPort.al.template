@@ -1,3 +1,2 @@
-// WARNING: every non-aggregated column joins the implicit GROUP BY.
 query <ID> "<AFFIX> Vendor Spend" { QueryType = Normal; DataAccessIntent = ReadOnly;
     elements { dataitem(H; "Purch. Inv. Header") { column(VendorNo; "Buy-from Vendor No.") { } column(TotalAmount; "Amount Including VAT") { Method = Sum; } } } }

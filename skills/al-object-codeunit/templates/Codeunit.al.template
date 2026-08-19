@@ -3,11 +3,14 @@ codeunit <ID> "<AFFIX> <Name> Mgt."
     Access = Public;
     var NotFoundErr: Label 'Record %1 not found.', Comment = '%1 = code';
     procedure Process(var Rec: Record "<AFFIX> <Name>"): Boolean
-    var IsHandled: Boolean;
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeProcess(Rec, IsHandled); if IsHandled then exit(true);
+        OnBeforeProcess(Rec, IsHandled);
+        if IsHandled then exit(true);
         if Rec."<AFFIX> Code" = '' then Error(NotFoundErr, Rec."<AFFIX> Code");
-        OnAfterProcess(Rec); exit(true);
+        OnAfterProcess(Rec);
+        exit(true);
     end;
     [IntegrationEvent(false, false)] local procedure OnBeforeProcess(var Rec: Record "<AFFIX> <Name>"; var IsHandled: Boolean) begin end;
     [IntegrationEvent(false, false)] local procedure OnAfterProcess(var Rec: Record "<AFFIX> <Name>") begin end;

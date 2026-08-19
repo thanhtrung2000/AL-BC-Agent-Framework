@@ -1,27 +1,20 @@
-<!-- conventions-version: 1.0.0 (framework-owned; safe to overwrite on update) -->
+<!-- conventions-version: 1.0.0 -->
 # AL Development Conventions — Business Central
-Always-on conventions applied to every Copilot request in this repository.
-
-> Project settings (affix, ID range, publisher) live in `.github/al-setup.md`. This
-> file is framework-owned and overwritten on each update — no project values here.
-
+Always-on conventions for every Copilot request.
+> Project settings live in `.github/al-setup.md` (framework never overwrites it).
 ## Naming
-Affix on every object, field, action, group, control. `<AFFIX> <Descriptive Name>`.
-Role codeunits end in Mgt./Handler/Factory/Impl. Subscriber codeunits end in Subscribers.
+Affix on every object/field/action/control. Role codeunits end Mgt./Handler/Factory/Impl. Subscriber codeunits end Subscribers.
 ## Object IDs
-Only from the production range in al-setup.md. Never reuse an ID. Test objects use the test range.
+Only from the production range. Never reuse an ID.
 ## Data & schema
-DataClassification on every table and field (release blocker). TableRelation on lookups.
-Keys for the dominant filter pattern; SumIndexFields for aggregation. FlowField over stored where derivable.
+DataClassification on every table and field (release blocker). TableRelation on lookups. FlowField over stored where derivable.
 ## Pages
-ApplicationArea on every field/action or it will not render. UsageCategory for searchable pages.
-ToolTip starting "Specifies ". Actions delegate to a codeunit.
+ApplicationArea on every field/action or it won't render. UsageCategory for searchable pages. ToolTip "Specifies ". Actions delegate to a codeunit.
 ## Codeunits
-Single responsibility. Publish [IntegrationEvent] at extension points. SetLoadFields before FindSet.
-Never HTTP in a loop/transaction. Never Commit in a loop/TryFunction.
+Single responsibility. Publish [IntegrationEvent] at extension points. SetLoadFields before FindSet. Never HTTP in a loop/transaction. Never Commit in a loop/TryFunction.
 ## Security
 Secrets in Isolated Storage. Every object needs a permission set entry.
 ## What NOT to re-check (analyzers own these)
-CodeCop, UICop, AppSourceCop, PerTenantExtensionCop. Enable all four in .vscode/settings.json.
+CodeCop, UICop, AppSourceCop, PerTenantExtensionCop.
 ## Style
 Four spaces. begin/end own lines. Public procedures before local.

@@ -1,10 +1,12 @@
 codeunit <ID> "<AFFIX> <Service> Auth"
 {
     Access = Internal;
-    var TokenKeyTok: Label '<AFFIX>_<SERVICE>_TOKEN', Locked = true; SecretKeyTok: Label '<AFFIX>_<SERVICE>_SECRET', Locked = true; ExpiryKeyTok: Label '<AFFIX>_<SERVICE>_EXPIRY', Locked = true;
+    var TokenKeyTok: Label '<AFFIX>_<SERVICE>_TOKEN', Locked = true; ExpiryKeyTok: Label '<AFFIX>_<SERVICE>_EXPIRY', Locked = true;
     procedure GetAccessToken(): Text
     var
-        Cached: Text; ExpTxt: Text; Exp: DateTime;
+        Cached: Text;
+        ExpTxt: Text;
+        Exp: DateTime;
     begin
         if IsolatedStorage.Get(TokenKeyTok, DataScope::Company, Cached) then
             if IsolatedStorage.Get(ExpiryKeyTok, DataScope::Company, ExpTxt) then

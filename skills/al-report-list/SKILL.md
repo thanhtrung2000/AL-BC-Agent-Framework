@@ -1,7 +1,7 @@
 ---
 name: al-report-list
-description: Build list/register/ledger reports - flat listings with filters.
+description: Build list/register/ledger reports.
 ---
 
 # List Report
-Start from [ListReport.al.template](./templates/ListReport.al.template). RequestFilterFields for the pane. SetCurrentKey must match the filter. Totals in the dataset.
+Start from [ListReport.al.template](./templates/ListReport.al.template). RequestFilterFields. SetCurrentKey matches the filter. Totals in the dataset.

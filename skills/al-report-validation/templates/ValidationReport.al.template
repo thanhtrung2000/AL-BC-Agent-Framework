@@ -8,12 +8,20 @@ report <ID> "<AFFIX> <Name> Check"
     var
         SL: Record "Sales Line";
     begin
-        Res.Reset(); Res.DeleteAll();
+        Res.Reset();
+        Res.DeleteAll();
         if SL.FindSet() then
             repeat
                 if SL."Dimension Set ID" = 0 then AddIssue(Res.Severity::Error, SL.RecordId());
             until SL.Next() = 0;
     end;
     local procedure AddIssue(Sev: Enum "<AFFIX> Check Severity"; SourceId: RecordId)
-    begin EntryNo += 1; Res.Init(); Res."Entry No." := EntryNo; Res.Severity := Sev; Res."Source Record ID" := SourceId; Res.Insert(); end;
+    begin
+        EntryNo += 1;
+        Res.Init();
+        Res."Entry No." := EntryNo;
+        Res.Severity := Sev;
+        Res."Source Record ID" := SourceId;
+        Res.Insert();
+    end;
 }

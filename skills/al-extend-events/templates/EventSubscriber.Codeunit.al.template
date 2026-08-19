@@ -1,4 +1,3 @@
-// Event subscriber - THIN dispatcher. name: "<AFFIX> <Area> Subscribers"  location: src/EventSubscribers/
 codeunit <ID> "<AFFIX> <Area> Subscribers"
 {
     Access = Internal;

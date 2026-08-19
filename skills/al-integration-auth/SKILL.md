@@ -1,7 +1,7 @@
 ---
 name: al-integration-auth
-description: Handle credentials - Isolated Storage, OAuth, token caching, masked setup.
+description: Handle credentials - Isolated Storage, OAuth, token caching.
 ---
 
 # Integration Auth
-Start from [AuthCodeunit.al.template](./templates/AuthCodeunit.al.template). **Secrets in Isolated Storage - always** (else BLOCKER). Refresh tokens BEFORE expiry. Setup page ExtendedDatatype=Masked. Never log tokens.
+Start from [AuthCodeunit.al.template](./templates/AuthCodeunit.al.template). Secrets in Isolated Storage - always. Refresh tokens BEFORE expiry. Never log tokens.

@@ -4,11 +4,25 @@ codeunit <ID> "<AFFIX> <Service> Client"
     var Auth: Codeunit "<AFFIX> <Service> Auth"; CallFailedErr: Label 'Call to %1 failed: %2.', Comment = '%1,%2';
     [TryFunction] procedure Send(Endpoint: Text; Payload: JsonObject; var Response: JsonObject)
     var
-        Client: HttpClient; Req: HttpRequestMessage; Resp: HttpResponseMessage; Content: HttpContent; Headers: HttpHeaders; T: Text; Attempt: Integer;
+        Client: HttpClient;
+        Req: HttpRequestMessage;
+        Resp: HttpResponseMessage;
+        Content: HttpContent;
+        Headers: HttpHeaders;
+        T: Text;
+        Attempt: Integer;
     begin
-        Payload.WriteTo(T); Content.WriteFrom(T); Content.GetHeaders(Headers); Headers.Clear(); Headers.Add('Content-Type', 'application/json');
-        Req.Content := Content; Req.Method := 'POST'; Req.SetRequestUri('https://<host>/api/v1' + Endpoint);
-        Req.GetHeaders(Headers); Headers.Add('Authorization', 'Bearer ' + Auth.GetAccessToken()); Client.Timeout := 30000;
+        Payload.WriteTo(T);
+        Content.WriteFrom(T);
+        Content.GetHeaders(Headers);
+        Headers.Clear();
+        Headers.Add('Content-Type', 'application/json');
+        Req.Content := Content;
+        Req.Method := 'POST';
+        Req.SetRequestUri('https://<host>/api/v1' + Endpoint);
+        Req.GetHeaders(Headers);
+        Headers.Add('Authorization', 'Bearer ' + Auth.GetAccessToken());
+        Client.Timeout := 30000;
         for Attempt := 1 to 3 do begin
             if Client.Send(Req, Resp) then begin
                 Resp.Content().ReadAs(T);

@@ -2,25 +2,10 @@
 name: 'al-plan-handoff'
 applyTo: '**/*.al,**/app.json'
 ---
-
-# Planning an AL feature — output format for handoff
+# Planning an AL feature — handoff format
 ## Setup gate
-Read .github/al-setup.md. If it has <...> placeholders, stop and tell the developer to fill it in.
+Read .github/al-setup.md. If <...> placeholders remain, stop and tell the developer to fill it in.
 ## The plan MUST end with a work-packet table
-```markdown
-## Work packets
 | # | Packet | Expert | Files | NEW/EDIT | Depends on |
-| P1 | <intent> | al-object-builder | src/... | NEW | none |
-```
 ## Routing
-| Work | Expert |
-|---|---|
-| New table/page/codeunit/enum/interface/query/XMLport | al-object-builder |
-| Extend a base object OR subscribe to a base event | al-extension-builder |
-| Any report type/extension, OR an RDLC layout from a picture/Excel | al-report-builder |
-| API page/query, outbound HTTP, OAuth | al-integration-builder |
-| Permission set, entitlement | al-permission-builder |
-Edge cases: API page/query->integration; report extension->report; codeunit wrapping HTTP->integration; business-logic codeunit->object; base-table field->extension; own-table field->object; subscriber->extension (split); "design the layout"->report.
-Mark each packet NEW or EDIT. Do NOT pick a sub-type or skill — each expert classifies its own.
-## Handing off
-Do not write AL. On approval the developer selects al-implementer at Start Implementation.
+New object→al-object-builder; extend a base object or subscribe→al-extension-builder; any report/RDLC layout→al-report-builder; API/HTTP/OAuth→al-integration-builder; permission set/entitlement→al-permission-builder. Edge cases: API page/query→integration; report ext→report; base-table field→extension; own-table field→object; subscriber→extension (split). Mark each packet NEW/EDIT. Each expert classifies its own sub-type.
